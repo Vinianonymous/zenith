@@ -1,5 +1,5 @@
-
 // GLOBAL STOPWATCH0
+    // The as HTMLPara... is used to specify to the TS that it is strictly such element.
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
 let globalTime = {
     'hours':0,
@@ -27,3 +27,14 @@ function HandleGlobalStopwatch() {
     }, (1000));
 }
 HandleGlobalStopwatch();
+
+// TASK ELEMENT 
+    // Export means other files can access 
+    // Interface defines the shape of an object.
+export interface TaskData {
+    id: number;
+    name: string;
+    description: string;
+    dueDate: Date;
+    completed: boolean;
+}
