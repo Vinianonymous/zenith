@@ -7,6 +7,25 @@
     </head>
 
     <body>
+        <dialog id="add-task-dialog">
+            <div>
+                <h2>Add Task</h2>
+                <form id="add-task-form">
+                    <label for="task-title">Title:</label>
+                    <input type="text" id="task-title" name="task-title" required><br><br>
+
+                    <label for="task-description">Description:</label>
+                    <textarea id="task-description" name="task-description"></textarea><br><br>
+
+                    <label for="task-due-date">Due Date:</label>
+                    <input type="date" id="task-due-date" name="task-due-date"><br><br>
+
+                    <button type="submit">Add Task</button>
+                    <button type="button" id="cancel-button">Cancel</button>
+                </form>
+            </div>
+        </dialog>
+        
         <header>
             <h1>Zenith</h1>
         </header>
@@ -20,7 +39,8 @@
                 <p id="stopwatch-text">00:00:00</p>
             </div>
 
-            <div id="taskframe">
+            <div id="taskframe">Tasks
+                <hr>
                 <!--TODO: Implement a task element (Div) with a remove button-->
                 <Task-item title="Sample Task"></Task-item>
             </div>
@@ -35,4 +55,4 @@
     </body>
 
     <script src="main.js"></script>
-</html>`
+</html>

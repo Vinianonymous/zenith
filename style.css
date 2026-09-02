@@ -25,10 +25,10 @@ body {
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
 }
 
 /* ===== Header ===== */
@@ -63,7 +63,7 @@ nav a {
     color: var(--text-muted);
     text-decoration: none;
     padding: 0.5rem 1.25rem;
-    border-radius: 999px;
+
     transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -81,8 +81,7 @@ nav a.current {
 /* ===== Main ===== */
 main {
     flex: 1;
-    width: 100%;
-    max-width: 900px;
+    width: 100vw;
     padding: 2rem 1rem;
     display: flex;
     flex-direction: column;
@@ -90,23 +89,33 @@ main {
 }
 
 /* ===== Stopwatch ===== */
+/* ===== Stopwatch Container ===== */
 #stopwatch-container {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 2.5rem 3rem;
-    text-align: center;
+    /* Layout & Centering */
+    width: 100%;                  /* Fills main container width */
+    height: 15%;
+    display: flex;                /* Uses Flexbox layout */
+    flex-direction: column;       /* Stacks text, task items, and buttons vertically */
+    align-items: center;          /* Centers children horizontally */
+    justify-content: center;       /* Centers children vertically */
+    text-align: center;           /* Ensures inline content stays centered */
+    margin: 0 auto 1.5rem auto;   /* Centers the container box itself */
 }
 
+/* ===== Stopwatch Text ===== */
 #stopwatch-text {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.05em;
     color: var(--text);
+    width: 100%;                  /* Ensures full width for text-align to work */
+    text-align: center;
+    margin-bottom: 1rem;
 }
-
 /* ===== Default Element Rules ===== */
 p {
     color: var(--text);
@@ -135,7 +144,7 @@ button {
     color: var(--text);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+
     padding: 0.6rem 1.25rem;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
@@ -162,7 +171,6 @@ textarea {
     color: var(--text);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
     padding: 0.6rem 0.75rem;
     transition: border-color 0.2s ease;
 }
@@ -174,6 +182,20 @@ textarea:focus {
     border-color: var(--accent);
 }
 
+dialog {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 400px;
+    align-items: center;
+    align-self: center;
+    left: 50vw;
+    transform: translateX(-50%);
+    color: white;
+}
 /* ===== Footer ===== */
 footer {
     width: 100%;
@@ -183,3 +205,4 @@ footer {
     color: var(--text-muted);
     font-size: 0.9rem;
 }
+

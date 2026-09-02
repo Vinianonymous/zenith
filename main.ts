@@ -1,5 +1,12 @@
-// GLOBAL STOPWATCH0
-    // The as HTMLPara... is used to specify to the TS that it is strictly such element.
+// GLOBAL STOPWATCH
+    // CYCLE ALARM
+const alarm_audio = new Audio('alarm.mp3');
+    //TODO: Find a way so user can configure this.
+        // This involves finding a way to interface configure page with this setting.
+const cycle_period = 15;
+
+    // STOPWATCH HANDLING
+        // The as HTMLPara... is used to specify to the TS that it is strictly such element.
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
 let globalTime = {
     'hours':0,
@@ -24,17 +31,20 @@ function HandleGlobalStopwatch() {
         let second = String(globalTime.seconds).padStart(2, "0");
         
         globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
+        if (globalTime.minutes % cycle_period == 0 && globalTime.seconds == 0) {
+            alarm_audio.play();
+        }
     }, (1000));
 }
 HandleGlobalStopwatch();
 
-// TASK ELEMENT 
-    // Export means other files can access 
-    // Interface defines the shape of an object.
-export interface TaskData {
-    id: number;
-    name: string;
-    description: string;
-    dueDate: Date;
-    completed: boolean;
-}
+
+
+
+// TASK HANDLING
+
+const addTaskBtn = document.getElementById('add-task-button') as HTMLButtonElement;
+addTaskBtn.addEventListener('click', () => {
+    const dialog = document.getElementById('add-task-dialog') as HTMLDialogElement;
+    dialog.showModal();
+})
