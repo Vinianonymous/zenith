@@ -1,3 +1,9 @@
+// SETTINGS HANDLING
+type Settings = {
+    cyclePeriod: number
+}
+
+
 // GLOBAL STOPWATCH
     // CYCLE ALARM
 const alarm_audio = new Audio('alarm.mp3');
@@ -109,3 +115,4 @@ form.addEventListener('submit', (event) => {
     dialog.close();
     form.reset();
 });
+
