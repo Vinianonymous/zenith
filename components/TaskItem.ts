@@ -30,6 +30,7 @@ class TaskItem extends HTMLElement {
           border: 1px solid var(--border, #334155);
           box-shadow: var(--shadow, 0 4px 20px rgba(0, 0, 0, 0.3));
           transition: border-color 0.2s ease, background 0.2s ease;
+          margin-bottom: 1rem;
         }
 
         .task-card:hover {
@@ -86,10 +87,25 @@ class TaskItem extends HTMLElement {
           color: var(--text-muted, #94a3b8);
         }
 
+        button {
+          margin-left:1.5rem;
+        }
+      
+        .info-btn {
+          font: inherit;
+          color: #68A7F9;
+          background-color: rgba(104, 167, 249, 0.1);
+          border: 1px solid transparent;;
+          padding: 0.4rem 0.8rem;
+          cursor: pointer;
+          font-size: 0.875rem;
+          transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+          
         .delete-btn {
           font: inherit;
           color: #f87171;
-          background: transparent;
+          background-color: rgba(104, 167, 249, 0.1);
           border: 1px solid transparent;;
           padding: 0.4rem 0.8rem;
           cursor: pointer;
@@ -117,6 +133,7 @@ class TaskItem extends HTMLElement {
           <input type="checkbox" class="toggle" ${isCompleted ? 'checked' : ''}>
           <span class="title">${title}</span>
         </label>
+        <button class= "info-btn" type="button">More info</button>
         <button class="delete-btn" type="button">Delete</button>
       </div>
     `;
@@ -124,6 +141,11 @@ class TaskItem extends HTMLElement {
     const checkbox = this.shadow.querySelector<HTMLInputElement>('.toggle');
     const deleteBtn = this.shadow.querySelector<HTMLButtonElement>('.delete-btn');
     const card = this.shadow.querySelector<HTMLDivElement>('.task-card');
+    const infoBtn = this.shadow.querySelector<HTMLButtonElement>(".info-btn");
+
+    infoBtn?.addEventListener('click', () => {
+      console.log("Information arrives to those who pursue it.")
+    })
 
     checkbox?.addEventListener('change', () => {
       const checked = checkbox.checked;

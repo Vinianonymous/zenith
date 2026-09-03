@@ -43,8 +43,69 @@ HandleGlobalStopwatch();
 
 // TASK HANDLING
 
-const addTaskBtn = document.getElementById('add-task-button') as HTMLButtonElement;
+type task = {
+    name: string;
+    completed: boolean;
+    dueDate: string | null;
+    description: string;
+    id: string;
+};
+let tasks: task[] = [];
+
+const taskList = document.getElementById('task-list') as HTMLDivElement;
+function RenderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task) => {
+        const taskItem = document.createElement('Task-item') as HTMLElement;
+        taskItem.setAttribute('title', task.name);
+        taskItem.setAttribute('completed', String(task.completed));
+        if (task.dueDate) {
+            taskItem.setAttribute('dueDate', task.dueDate);
+        }
+        taskItem.setAttribute('description', task.description);
+        taskList.appendChild(taskItem);
+    });
+}
+
+const addTaskBtn = document.getElementById(
+    'add-task-button'
+) as HTMLButtonElement;
+
+const dialog = document.getElementById(
+    'add-task-dialog'
+) as HTMLDialogElement;
+
+const form = document.getElementById(
+    'add-task-form'
+) as HTMLFormElement;
+
+
+// Open dialog
 addTaskBtn.addEventListener('click', () => {
-    const dialog = document.getElementById('add-task-dialog') as HTMLDialogElement;
     dialog.showModal();
-})
+});
+
+
+// Handle form submission
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+
+    const task = {
+        name: formData.get('task-title') as string,
+        completed: false,
+        dueDate: formData.get('task-due-date') as string | null,
+        description: formData.get('task-description') as string,
+        id: crypto.randomUUID()
+    };
+
+    console.log(task);
+
+    // Here is where you actually USE the task
+    tasks.push(task);
+    RenderTasks();
+
+    dialog.close();
+    form.reset();
+});
