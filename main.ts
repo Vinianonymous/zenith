@@ -45,23 +45,23 @@ function HandleGlobalStopwatch() {
 HandleGlobalStopwatch();
 
 
-
-
 // TASK HANDLING
+import {getTasks, addTask} from "./api.js";
+import { Task } from "./types.js";
 
-type task = {
-    name: string;
-    completed: boolean;
-    dueDate: string | null;
-    description: string;
-    id: string;
-};
-let tasks: task[] = [];
+
+let tasks: Task[] = [];
+async function loadTasks() {
+    tasks = await getTasks();
+    RenderTasks();
+}
+
+loadTasks();
 
 const taskList = document.getElementById('task-list') as HTMLDivElement;
 function RenderTasks() {
     taskList.innerHTML = '';
-    tasks.forEach((task) => {
+    tasks.forEach((task: Task) => {
         const taskItem = document.createElement('Task-item') as HTMLElement;
         taskItem.setAttribute('title', task.name);
         taskItem.setAttribute('completed', String(task.completed));
@@ -100,8 +100,7 @@ form.addEventListener('submit', (event) => {
 
     const task = {
         name: formData.get('task-title') as string,
-        completed: false,
-        dueDate: formData.get('task-due-date') as string | null,
+        dueDate: formData.get('task-due-date') as string,
         description: formData.get('task-description') as string,
         id: crypto.randomUUID()
     };
@@ -109,6 +108,7 @@ form.addEventListener('submit', (event) => {
     console.log(task);
 
     // Here is where you actually USE the task
+    addTask(task);
     tasks.push(task);
     RenderTasks();
 
