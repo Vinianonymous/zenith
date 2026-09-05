@@ -1,4 +1,3 @@
-import {deleteTask} from "../api.js"
 class TaskItem extends HTMLElement {
   private shadow: ShadowRoot;
 
@@ -145,10 +144,14 @@ class TaskItem extends HTMLElement {
       console.log("Information arrives to those who pursue it.")
     })
 
-    // TODO: SOLVE THIS SOMEHOW
+    // Let the parent list own removal + persistence so local state
+    // and the backend can't diverge (no page reload needed to resync).
     deleteBtn?.addEventListener('click', () => {
-      this.remove();
-      deleteTask(id)
+      this.dispatchEvent(new CustomEvent('task-delete', {
+        detail: { id },
+        bubbles: true,
+        composed: true
+      }));
     });
   }
 }

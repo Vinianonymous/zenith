@@ -1,3 +1,7 @@
+// TASK HANDLING
+import {getTasks, addTask, deleteTask} from "./api.js";
+import { Task } from "./types.js";
+
 // SETTINGS HANDLING
 type Settings = {
     cyclePeriod: number
@@ -46,10 +50,6 @@ HandleGlobalStopwatch();
 
 
 // TASK HANDLING
-import {getTasks, addTask, deleteTask} from "./api.js";
-import { Task } from "./types.js";
-
-
 let tasks: Task[] = [];
 async function loadTasks() {
     tasks = await getTasks();
@@ -58,22 +58,48 @@ async function loadTasks() {
 
 loadTasks();
 
-const taskList = document.getElementById('task-list') as HTMLDivElement;
+const taskItems = document.getElementById('task-items') as HTMLDivElement;
+function createTaskElement(task: Task): HTMLElement {
+    const taskItem = document.createElement('task-item') as HTMLElement;
+
+    taskItem.setAttribute('title', task.name);
+    if (task.dueDate) {
+        taskItem.setAttribute('dueDate', task.dueDate);
+    }
+    taskItem.setAttribute('description', task.description);
+    taskItem.setAttribute('id', task.id)
+    return taskItem;
+}
+
 function RenderTasks() {
-    taskList.innerHTML = '';
+    taskItems.innerHTML = '';
     tasks.forEach((task: Task) => {
-        const taskItem = document.createElement('Task-item') as HTMLElement;
-
-
-        taskItem.setAttribute('title', task.name);
-        if (task.dueDate) {
-            taskItem.setAttribute('dueDate', task.dueDate);
-        }
-        taskItem.setAttribute('description', task.description);
-        taskItem.setAttribute('id', task.id)
-        taskList.appendChild(taskItem);
+        taskItems.appendChild(createTaskElement(task));
     });
 }
+
+// Handle deletions dispatched by <task-item> elements.
+// Removes only the single card (no full list re-render, no page reload).
+taskItems.addEventListener('task-delete', async (event: Event) => {
+    const customEvent = event as CustomEvent<{ id: string }>;
+    const id = customEvent.detail.id;
+    const index = tasks.findIndex((task: Task) => task.id === id);
+    if (index === -1) {
+        return;
+    }
+
+    const [removed] = tasks.splice(index, 1);
+    const element = taskItems.querySelector(`task-item[id="${id}"]`);
+    element?.remove();
+
+    try {
+        await deleteTask(id);
+    } catch (error) {
+        console.error('Failed to delete task, restoring it.', error);
+        tasks.splice(index, 0, removed);
+        RenderTasks();
+    }
+});
 
 
 const addTaskBtn = document.getElementById(
@@ -110,10 +136,16 @@ form.addEventListener('submit', async (event) => {
 
     console.log(task);
 
-    // Here is where you actually USE the task
-    addTask(task);
+    // Persist first: only touch local state once the backend confirms.
+    // Appends a single element instead of re-rendering the whole list.
+    try {
+        await addTask(task);
+    } catch (error) {
+        console.error('Failed to add task.', error);
+        return;
+    }
     tasks.push(task);
-    RenderTasks();
+    taskItems.appendChild(createTaskElement(task));
 
     dialog.close();
     form.reset();
