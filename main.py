@@ -18,15 +18,14 @@ class Task(BaseModel):
     dueDate:str
     id:str
 
+class deleteTaskRequest(BaseModel):
+    taskId: str
+
 # Read Tasks
 @app.get("/tasks")
 def getData():
     return FileHandler.readData("tasks.json")
 
-# TODO: Now I get a 422 AAAAAAA
-@app.get("/tasks")
-def get_tasks():
-    return tasks
 @app.post("/tasks")
 def createTask(task: Task):
     # 1. Read the existing data
@@ -46,11 +45,15 @@ def createTask(task: Task):
         "task": new_task
     }
 
-@app.delete("/tasks/{taskId}")
-def deleteTask(taskId: str):
+
+@app.delete("/tasks")
+def deleteTask(request: deleteTaskRequest):
     tasks = FileHandler.readData("tasks.json")
-    tasks = [task for task in tasks if task["id"] != taskId]
+
+    tasks = [task for task in tasks if task["id"] != request.taskId]
+
     FileHandler.writeData("tasks.json", tasks)
+
     return {
-        "message": "Task Terminated."
+        "message": "Task deleted successfully"
     }

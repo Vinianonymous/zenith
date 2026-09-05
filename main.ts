@@ -46,7 +46,7 @@ HandleGlobalStopwatch();
 
 
 // TASK HANDLING
-import {getTasks, addTask} from "./api.js";
+import {getTasks, addTask, deleteTask} from "./api.js";
 import { Task } from "./types.js";
 
 
@@ -63,15 +63,18 @@ function RenderTasks() {
     taskList.innerHTML = '';
     tasks.forEach((task: Task) => {
         const taskItem = document.createElement('Task-item') as HTMLElement;
+
+
         taskItem.setAttribute('title', task.name);
-        taskItem.setAttribute('completed', String(task.completed));
         if (task.dueDate) {
             taskItem.setAttribute('dueDate', task.dueDate);
         }
         taskItem.setAttribute('description', task.description);
+        taskItem.setAttribute('id', task.id)
         taskList.appendChild(taskItem);
     });
 }
+
 
 const addTaskBtn = document.getElementById(
     'add-task-button'
@@ -93,7 +96,7 @@ addTaskBtn.addEventListener('click', () => {
 
 
 // Handle form submission
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const formData = new FormData(form);

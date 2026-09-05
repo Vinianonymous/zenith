@@ -16,3 +16,16 @@ export async function addTask(task: Task): Promise<Task> {
 
     return await response.json();
 }
+
+export async function deleteTask(taskId:string) {
+    const response = await fetch(`${API_URL}/tasks`,
+        {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({taskId: taskId})
+        }
+    )
+    return await response.json();
+}

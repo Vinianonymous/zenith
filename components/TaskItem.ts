@@ -1,3 +1,4 @@
+import {deleteTask} from "../api.js"
 class TaskItem extends HTMLElement {
   private shadow: ShadowRoot;
 
@@ -8,9 +9,9 @@ class TaskItem extends HTMLElement {
 
   connectedCallback(): void {
     const title: string = this.getAttribute('title') ?? 'Untitled Task';
-    const isCompleted: boolean = this.hasAttribute('completed');
     const description: string = this.getAttribute('description') ?? '';
     const dueDate: string = this.getAttribute('dueDate') ?? '';
+    const id: string = this.getAttribute('id') ?? '';
 
     this.shadow.innerHTML = `
       <style>
@@ -128,17 +129,14 @@ class TaskItem extends HTMLElement {
         }
       </style>
 
-      <div class="task-card ${isCompleted ? 'completed' : ''}">
+      <div class="task-card">
         <label class="task-content">
-          <input type="checkbox" class="toggle" ${isCompleted ? 'checked' : ''}>
           <span class="title">${title}</span>
         </label>
         <button class= "info-btn" type="button">More info</button>
         <button class="delete-btn" type="button">Delete</button>
       </div>
     `;
-
-    const checkbox = this.shadow.querySelector<HTMLInputElement>('.toggle');
     const deleteBtn = this.shadow.querySelector<HTMLButtonElement>('.delete-btn');
     const card = this.shadow.querySelector<HTMLDivElement>('.task-card');
     const infoBtn = this.shadow.querySelector<HTMLButtonElement>(".info-btn");
@@ -147,20 +145,10 @@ class TaskItem extends HTMLElement {
       console.log("Information arrives to those who pursue it.")
     })
 
-    checkbox?.addEventListener('change', () => {
-      const checked = checkbox.checked;
-      this.toggleAttribute('completed', checked);
-      card?.classList.toggle('completed', checked);
-    });
-
+    // TODO: SOLVE THIS SOMEHOW
     deleteBtn?.addEventListener('click', () => {
-      this.dispatchEvent(
-        new CustomEvent('task-deleted', {
-          bubbles: true,
-          composed: true,
-        })
-      );
       this.remove();
+      deleteTask(id)
     });
   }
 }
