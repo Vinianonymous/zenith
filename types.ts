@@ -29,3 +29,11 @@ export type Task = {
     // The backend uses this to know WHICH task to delete.
     id: string;
 };
+
+// [Vinny work] Changed cyclePeriod from string to number — both configure.html
+// and main.ts treat it as a number (the input is type="number", the alarm uses
+// modulo arithmetic). Keeping it as string caused silent NaN bugs.
+export type Settings = {
+    cyclePeriod: number;
+    cycleAlarmPath: string;
+}

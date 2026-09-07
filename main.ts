@@ -16,18 +16,11 @@
 // is what will exist on disk after compiling (see types.ts for the full
 // explanation).
 import {getTasks, addTask, deleteTask} from "./api.js";
-import { Task } from "./types.js";
-
-
+import { Task, Settings} from "./types.js";
+import {loadSettings} from "./configure.js";
 // ============================================================================
 // SETTINGS HANDLING
-// ============================================================================
-// `type Settings = {...}` declares the SHAPE of a settings object (like Task
-// in types.ts). It is not used yet — a placeholder for the future "Configure"
-// dialog. Declaring it now documents what settings will look like.
-type Settings = {
-    cyclePeriod: number
-}
+let settings:Settings = loadSettings();
 
 
 // ============================================================================
@@ -39,12 +32,10 @@ type Settings = {
 // `const alarm_audio = new Audio(...)` loads a sound file into an HTMLAudio
 // object. Calling alarm_audio.play() later actually plays it. The file path
 // is relative to index.html, so alarm.mp3 must sit next to index.html.
-const alarm_audio = new Audio('alarm.mp3');
-//TODO: Find a way so user can configure this.
+const alarm_audio = new Audio(settings.cycleAlarmPath);
     // This involves finding a way to interface configure page with this setting.
 // How many minutes between alarm rings. `const` = the binding can't be
 // reassigned later (use `let` for values that DO change, like globalTime).
-const cycle_period = 15;
 
 // STOPWATCH HANDLING
 // `document.getElementById(...)` grabs the <p id="stopwatch-text"> element.
@@ -62,7 +53,7 @@ const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLPa
 let globalTime = {
     'hours':0,
     'minutes':0,
-    'seconds':0
+    'seconds':59
 }
 
 // Starts the ticking. Declared as a function so the INTENT is named and the
@@ -102,7 +93,7 @@ function HandleGlobalStopwatch() {
         // :30, :45. Combined with seconds == 0 it fires exactly once per
         // boundary instead of for a whole minute. (Edge case: at 00:00 the
         // alarm also rings on page load — 0 % 15 == 0!)
-        if (globalTime.minutes % cycle_period == 0 && globalTime.seconds == 0) {
+        if (globalTime.minutes % settings.cyclePeriod == 0 && globalTime.seconds == 0) {
             alarm_audio.play();
         }
     }, (1000));
