@@ -17,10 +17,7 @@
 // explanation).
 import {getTasks, addTask, deleteTask} from "./api.js";
 import { Task, Settings} from "./types.js";
-import {loadSettings} from "./configure.js";
-// ============================================================================
-// SETTINGS HANDLING
-let settings:Settings = loadSettings();
+
 
 
 // ============================================================================
@@ -32,7 +29,7 @@ let settings:Settings = loadSettings();
 // `const alarm_audio = new Audio(...)` loads a sound file into an HTMLAudio
 // object. Calling alarm_audio.play() later actually plays it. The file path
 // is relative to index.html, so alarm.mp3 must sit next to index.html.
-const alarm_audio = new Audio(settings.cycleAlarmPath);
+const alarm_audio = new Audio("alarm.mp3");
     // This involves finding a way to interface configure page with this setting.
 // How many minutes between alarm rings. `const` = the binding can't be
 // reassigned later (use `let` for values that DO change, like globalTime).
@@ -93,7 +90,7 @@ function HandleGlobalStopwatch() {
         // :30, :45. Combined with seconds == 0 it fires exactly once per
         // boundary instead of for a whole minute. (Edge case: at 00:00 the
         // alarm also rings on page load — 0 % 15 == 0!)
-        if (globalTime.minutes % settings.cyclePeriod == 0 && globalTime.seconds == 0) {
+        if (globalTime.minutes % 15 == 0 && globalTime.seconds == 0) {
             alarm_audio.play();
         }
     }, (1000));

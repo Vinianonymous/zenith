@@ -17,15 +17,19 @@
 
 # --- Imports: tools from installed libraries + the standard library. ---
 # FastAPI: the web framework itself (routing, validation, JSON responses).
-from fastapi import FastAPI
-# CORSMiddleware: the plugin that implements CORS (explained below).
-from fastapi.middleware.cors import CORSMiddleware
 # Path: object-oriented file paths. Used to locate data/tasks.json relative
 # to THIS file, so the server works no matter which folder you start it from.
 from pathlib import Path
+
+from fastapi import FastAPI
+
+# CORSMiddleware: the plugin that implements CORS (explained below).
+from fastapi.middleware.cors import CORSMiddleware
+
 # BaseModel: Pydantic's base class for declaring "shapes" of JSON data with
 # automatic validation (the Python cousin of the Task type in types.ts).
 from pydantic import BaseModel
+
 # Our own helper for reading/writing the JSON data file.
 from file_handler import FileHandler
 
