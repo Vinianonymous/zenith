@@ -50,7 +50,7 @@ const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLPa
 let globalTime = {
     'hours':0,
     'minutes':0,
-    'seconds':59
+    'seconds':0
 }
 
 // Starts the ticking. Declared as a function so the INTENT is named and the
