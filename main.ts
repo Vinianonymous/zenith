@@ -79,23 +79,12 @@ const taskItems = document.getElementById('task-items') as HTMLDivElement;
 // load) and the single-append (adding one task) share the same code —
 // write it once, use it twice, and the two can never drift apart.
 function createTaskElement(task: Task): HTMLElement {
-    // Custom element names MUST be lowercase and contain a hyphen.
-    // 'task-item' matches customElements.define('task-item', ...) in
-    // TaskItem.ts — when the browser sees this tag, it upgrades it into a
-    // full TaskItem component and runs its connectedCallback().
-    const taskItem = document.createElement('task-item') as HTMLElement;
 
-    // Web components receive data through ATTRIBUTES (plain strings).
-    // setAttribute('title', ...) becomes getAttribute('title') inside the
-    // component. Only set dueDate when non-empty so the component's
-    // `?? ''` fallback stays in charge of the default.
+    const taskItem = document.createElement('task-item') as HTMLElement;
     taskItem.setAttribute('title', task.name);
-    if (task.dueDate) {
-        taskItem.setAttribute('dueDate', task.dueDate);
-    }
+    taskItem.setAttribute('dueDate', task.dueDate);
     taskItem.setAttribute('description', task.description);
-    // The backend id, so the component can tell the parent WHICH task its
-    // delete button refers to (sent back inside the 'task-delete' event).
+
     taskItem.setAttribute('id', task.id)
     return taskItem;
 }
@@ -108,9 +97,11 @@ function RenderTasks() {
     // Clears the container. Safe now: the <h2> is outside #task-items.
     // (Setting innerHTML is fine here because we control the string — it's
     // empty — and immediately repopulate with real elements.)
+    console.log(tasks);
     taskItems.innerHTML = '';
     tasks.forEach((task: Task) => {
         taskItems.appendChild(createTaskElement(task));
+
     });
 }
 

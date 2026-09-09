@@ -16,7 +16,7 @@ class TaskItem extends HTMLElement {
     // falsy values like "" intact.
     const title: string = this.getAttribute('title') ?? 'Untitled Task';
     const description: string = this.getAttribute('description') ?? '';
-    const dueDate: string = this.getAttribute('dueDate') ?? '';
+    const date: string = this.getAttribute('dueDate') ?? '';
     const id: string = this.getAttribute('id') ?? '';
 
 
@@ -146,10 +146,10 @@ class TaskItem extends HTMLElement {
                 <input type="text" name="task-desc" class="task-desc-input">
                 <br>
                 <label>Due Date:</label>
-                <input type="date" id="due-date">
+                <input type="date" class="due-date">
                 <br>
                 <label>ID (Debugging): </label>
-                <div id="UUID"></div>
+                <div class="UUID"></div>
             </div>
         </dialog>
         <label class="task-content">
@@ -173,9 +173,15 @@ class TaskItem extends HTMLElement {
       const taskDesc = this.shadow.querySelector<HTMLInputElement>('.task-desc-input') as HTMLInputElement;
       taskDesc.value = description;
 
+      const dueDateInput = this.shadow.querySelector<HTMLInputElement>('.due-date') as HTMLInputElement;
+      dueDateInput.value = `${date}`
+
+      const idL = this.shadow.querySelector<HTMLDivElement>('.UUID') as HTMLDivElement;
+      idL.textContent = id;
+
       dialog?.showModal();
       console.log("Information arrives to those who pursue it.");
-
+      console.log();
     })
 
 
