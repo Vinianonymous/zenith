@@ -98,6 +98,12 @@ class TaskItem extends HTMLElement {
         button {
           margin-left:1.5rem;
         }
+        input {
+          background-color: rgba(104, 167, 249, 0.1);
+          color: white;
+          border: none;  
+          padding: 5%;
+        }
 
         .info-btn {
           font: inherit;
@@ -108,6 +114,11 @@ class TaskItem extends HTMLElement {
           cursor: pointer;
           font-size: 0.875rem;
           transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+        .info-btn:hover {
+          color: #819fc7c9;
+          background-color: rgba(47, 78, 119, 0.1);
+          border: 1px solid #819fc7c9;
         }
 
         .delete-btn {
@@ -134,6 +145,31 @@ class TaskItem extends HTMLElement {
           outline: 2px solid #ef4444;
           outline-offset: 2px;
         }
+        dialog {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          box-shadow: var(--shadow);
+          border-radius: var(--radius);
+          padding: 1.5rem;
+          width: 90%;
+          max-width: 400px;
+          align-items: center;
+          align-self: center;
+          text-align: center;
+          left: 25vw;
+          transform: translateX(-50%);
+          color: white;
+        }
+        button {
+          font: inherit;
+          color: var(--text);
+          background: var(--surface);
+          border: 1px solid var(--border);
+          padding: 0.6rem 1.25rem;
+          cursor: pointer;
+          transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+          margin: 15px;
+        }
       </style>
 
       <div class="task-card">
@@ -150,6 +186,10 @@ class TaskItem extends HTMLElement {
                 <br>
                 <label>ID (Debugging): </label>
                 <div class="UUID"></div>
+                <div>
+                  <button id="save-btn">Save</button>
+                  <button id="cancel-btn">Cancel</button>
+                </div>
             </div>
         </dialog>
         <label class="task-content">
@@ -165,8 +205,10 @@ class TaskItem extends HTMLElement {
     const infoBtn = this.shadow.querySelector<HTMLButtonElement>(".info-btn");
 
     infoBtn?.addEventListener('click', () => {
+      //Get dialog from the HTML
       const dialog = this.shadow.querySelector<HTMLDialogElement>('.task-info-dialog');
 
+      // Bunch of lines that set the inputs into the current data values.
       const taskName = this.shadow.querySelector<HTMLInputElement>('.task-name-input') as HTMLInputElement;
       taskName.value = title;
 
@@ -179,9 +221,17 @@ class TaskItem extends HTMLElement {
       const idL = this.shadow.querySelector<HTMLDivElement>('.UUID') as HTMLDivElement;
       idL.textContent = id;
 
+      // Now for the buttonsssssssssss aaaaaaaa
+      const saveBtn = this.shadow.getElementById('save-btn') as HTMLButtonElement;
+      const cancelBtn = this.shadow.getElementById('cancel-btn') as HTMLButtonElement;
+      cancelBtn.addEventListener('click', ()=>{
+        dialog?.remove();
+      })
+
+
+      // Show dialog and also some cool quote ig??
       dialog?.showModal();
       console.log("Information arrives to those who pursue it.");
-      console.log();
     })
 
 
