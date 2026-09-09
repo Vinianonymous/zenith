@@ -1,68 +1,24 @@
-// ============================================================================
-// main.ts — FRONTEND ENTRY POINT (stopwatch + task list UI)
-// ============================================================================
-// This is the brain of the page. index.html loads the COMPILED version
-// (main.js) via <script type="module" src="main.js">. You edit THIS file,
-// then run the compiler (`tsc ...`) to regenerate main.js. Never edit the
-// .js by hand — your changes would be overwritten by the next build.
 
-// ---------------------------------------------------------------------------
-// Imports: bringing in code from other files.
-// ---------------------------------------------------------------------------
-// `import { a, b } from "./file.js"` loads the EXPORTED names `a` and `b`
-// from that module. Imports are "hoisted" (loaded before anything runs),
-// so by convention they sit at the top of the file.
-// We import from "./api.js" / "./types.js" with .js extensions because that
-// is what will exist on disk after compiling (see types.ts for the full
-// explanation).
 import {getTasks, addTask, deleteTask} from "./api.js";
 import { Task, Settings} from "./types.js";
+import { loadSettings } from "./settings.js";
+const settings:Settings = loadSettings();
 
-
-
-// ============================================================================
-// GLOBAL STOPWATCH + CYCLE ALARM
-// ============================================================================
-// A ticking clock at the top of the page that rings every `cycle_period`
-// minutes. It is completely independent from the task list below.
-
-// `const alarm_audio = new Audio(...)` loads a sound file into an HTMLAudio
-// object. Calling alarm_audio.play() later actually plays it. The file path
 // is relative to index.html, so alarm.mp3 must sit next to index.html.
-const alarm_audio = new Audio("alarm.mp3");
-    // This involves finding a way to interface configure page with this setting.
-// How many minutes between alarm rings. `const` = the binding can't be
-// reassigned later (use `let` for values that DO change, like globalTime).
+const alarm_audio = new Audio(settings.cycleAlarmPath);
 
-// STOPWATCH HANDLING
-// `document.getElementById(...)` grabs the <p id="stopwatch-text"> element.
-// It returns `HTMLElement | null` (null if the id doesn't exist!), and the
-// generic HTMLElement has no `textContent`... actually it does — but to be
-// precise we assert the exact kind with `as HTMLParagraphElement`. That is a
-// TYPE ASSERTION: "trust me compiler, this is a <p> element". It changes
-// only the compile-time type, generating zero runtime code. If you assert
-// wrongly (it was actually a <div>), TypeScript won't save you — so only
-// assert things you've verified in index.html.
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
-// Mutable state for the clock. `let` because we reassign its FIELDS every
-// second (note: `const` would also work here since we never reassign the
-// object ITSELF — but `let` signals "this changes over time").
+
 let globalTime = {
     'hours':0,
     'minutes':0,
     'seconds':0
 }
 
-// Starts the ticking. Declared as a function so the INTENT is named and the
-// setup could be restarted later if needed.
+
 function HandleGlobalStopwatch() {
-    // setInterval(callback, ms) calls `callback` every `ms` milliseconds,
-    // forever (until clearInterval). The `() => {...}` is an ARROW FUNCTION —
-    // a compact anonymous function. It "closes over" globalTime and
-    // globalStopwatchLabel from the surrounding scope (a CLOSURE), so each
-    // tick can read and update them.
+
     setInterval(() => {
-        // --- advance the time by one second, rolling over at 60 ---
         globalTime.seconds ++;
         if (globalTime.seconds > 59) {
             globalTime.seconds = 0;
@@ -73,24 +29,14 @@ function HandleGlobalStopwatch() {
             globalTime.minutes = 0;
             globalTime.hours ++;
         }
-        // --- format as "HH:MM:SS" ---
-        // String(5) turns the number into "5"; .padStart(2, "0") left-pads
-        // with zeros to width 2, so "5" becomes "05". Template literals
-        // (backticks + ${...}) embed the values directly into the string.
+       
         let hour = String(globalTime.hours).padStart(2, "0");
         let minute = String(globalTime.minutes).padStart(2, "0");
         let second = String(globalTime.seconds).padStart(2, "0");
 
-        // .textContent sets the TEXT inside the <p>, updating what you see.
-        // (Use textContent, never innerHTML, for plain text — innerHTML would
-        // parse the string as HTML and open the door to injection attacks.)
         globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
-        // --- ring the alarm on every `cycle_period`-minute boundary ---
-        // `%` is modulo (remainder): minutes % 15 == 0 is true at :00, :15,
-        // :30, :45. Combined with seconds == 0 it fires exactly once per
-        // boundary instead of for a whole minute. (Edge case: at 00:00 the
-        // alarm also rings on page load — 0 % 15 == 0!)
-        if (globalTime.minutes % 15 == 0 && globalTime.seconds == 0) {
+       
+        if (globalTime.minutes % settings.cyclePeriod == 0 && globalTime.seconds == 0) {
             alarm_audio.play();
         }
     }, (1000));
