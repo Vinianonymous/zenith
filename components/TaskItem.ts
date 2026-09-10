@@ -1,4 +1,5 @@
-
+import { editTask } from "../api.js";
+import {Task, editTaskRequest} from "../types.js"
 class TaskItem extends HTMLElement {
   private shadow: ShadowRoot;
 
@@ -218,11 +219,34 @@ class TaskItem extends HTMLElement {
       const dueDateInput = this.shadow.querySelector<HTMLInputElement>('.due-date') as HTMLInputElement;
       dueDateInput.value = `${date}`
 
-      const idL = this.shadow.querySelector<HTMLDivElement>('.UUID') as HTMLDivElement;
-      idL.textContent = id;
+      const idE = this.shadow.querySelector<HTMLDivElement>('.UUID') as HTMLDivElement;
+      idE.textContent = id;
 
       // Now for the buttonsssssssssss aaaaaaaa
       const saveBtn = this.shadow.getElementById('save-btn') as HTMLButtonElement;
+      saveBtn.addEventListener('click', ()=>{
+        const newName = taskName.value;
+        const newDesc = taskDesc.value;
+        const newDate = dueDateInput.value;
+        const task:Task = {
+            name: newName,
+            description: newDesc,
+            dueDate: newDate,
+            id:this.id
+        }
+        const request:editTaskRequest = {
+          newData:task
+        }
+
+        this.dispatchEvent(new CustomEvent('task-edition', {
+          detail: {task},
+          bubbles: true,
+          composed: true
+        }));
+        dialog?.remove();
+
+      })
+
       const cancelBtn = this.shadow.getElementById('cancel-btn') as HTMLButtonElement;
       cancelBtn.addEventListener('click', ()=>{
         dialog?.remove();

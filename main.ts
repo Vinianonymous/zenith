@@ -1,5 +1,5 @@
 
-import {getTasks, addTask, deleteTask} from "./api.js";
+import {getTasks, addTask, deleteTask, editTask} from "./api.js";
 import { Task, Settings} from "./types.js";
 import { loadSettings } from "./settings.js";
 const settings:Settings = loadSettings();
@@ -115,9 +115,6 @@ function RenderTasks() {
 // EVERY card — present and future. This pattern is called EVENT DELEGATION:
 // no per-card bookkeeping, no stale listeners after re-renders.
 taskItems.addEventListener('task-delete', async (event: Event) => {
-    // The listener signature must accept the generic Event, but WE know we
-    // only fire CustomEvents with an { id } payload, so we narrow the type
-    // with `as`. `event.detail` is where CustomEvent carries custom data.
     const customEvent = event as CustomEvent<{ id: string }>;
     const id = customEvent.detail.id;
     // Find the task's position in our array. findIndex returns -1 when
@@ -127,14 +124,8 @@ taskItems.addEventListener('task-delete', async (event: Event) => {
         return;
     }
 
-    // OPTIMISTIC update: assume the server call will succeed and update the
-    // UI instantly (arrays + DOM) so the app feels snappy. `splice(index, 1)`
-    // REMOVES one element at `index` and returns it in an array — hence the
-    // `const [removed] = ...` destructuring to grab that one element back.
-    // We keep `removed` so we can UNDO below if the network call fails.
+
     const [removed] = tasks.splice(index, 1);
-    // Remove just this ONE card from the page. The id is a UUID (no spaces
-    // or quotes), so it is safe inside the quoted attribute selector.
     const element = taskItems.querySelector(`task-item[id="${id}"]`);
     element?.remove();
 
@@ -142,11 +133,48 @@ taskItems.addEventListener('task-delete', async (event: Event) => {
         // Persist the deletion. `await` so a failure lands in `catch`.
         await deleteTask(id);
     } catch (error) {
-        // The server said NO (or was unreachable): roll back to keep the UI
-        // and backend in sync, then re-render from the restored array.
-        // Without this, a failed delete would LOOK deleted until refresh.
+
         console.error('Failed to delete task, restoring it.', error);
         tasks.splice(index, 0, removed);
+        RenderTasks();
+    }
+});
+
+taskItems.addEventListener('task-edition', async (event: Event) => {
+    const customEvent = event as CustomEvent<{ task: Task }>;
+    const editedTask = customEvent.detail.task;
+
+    const index = tasks.findIndex(
+        (task: Task) => task.id === editedTask.id
+    );
+
+    if (index === -1) {
+        return;
+    }
+
+    const oldTask = tasks[index];
+
+    // Update local state
+    tasks[index] = editedTask;
+
+    try {
+        // Persist the edit
+        await editTask({
+            newData: editedTask
+        });
+
+        // Replace the visual element
+        const oldElement = taskItems.querySelector(
+            `task-item[id="${editedTask.id}"]`
+        );
+
+        oldElement?.replaceWith(createTaskElement(editedTask));
+
+    } catch (error) {
+        console.error('Failed to edit task, restoring old task.', error);
+
+        // Roll back local state
+        tasks[index] = oldTask;
         RenderTasks();
     }
 });

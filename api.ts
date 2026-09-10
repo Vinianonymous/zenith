@@ -7,7 +7,7 @@
 
 // We reuse the shared Task shape so the compiler guarantees we send
 // well-formed tasks to the server.
-import {Task} from "./types.js"
+import {Task, editTaskRequest} from "./types.js"
 
 // The base address of the FastAPI backend (see main.py).
 // The frontend (Live Server, usually :5500) and the backend (:8000) run on
@@ -81,4 +81,20 @@ export async function deleteTask(taskId:string) {
         }
     )
     return await response.json();
+}
+
+
+
+export async function editTask(request: editTaskRequest) {
+    const response = await fetch(`${API_URL}/edit/tasks`,
+        {
+            method:"POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(request)
+                
+        }
+    )
+    return await response.json;
 }
