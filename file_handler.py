@@ -1,18 +1,4 @@
-# ============================================================================
-# file_handler.py — READING/WRITING THE JSON DATA FILE
-# ============================================================================
-# A tiny helper class that hides all file details behind two functions:
-# readData() and writeData(). main.py never touches files directly — it just
-# asks this class for "the list of tasks" or tells it "save this list".
-# If you ever switch storage (e.g. a real database), you only rewrite THIS
-# file and main.py keeps working untouched. That idea is called SEPARATION
-# OF CONCERNS: each file has ONE job.
-
-# Python's built-in module for converting between Python objects (lists,
-# dicts, strings...) and JSON text. json.load reads JSON from a file,
-# json.dump writes Python objects to a file as JSON.
 import json
-
 
 class FileHandler:
     # A class used purely as a NAMESPACE for two helper functions — we never

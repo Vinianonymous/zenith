@@ -193,9 +193,19 @@ class TaskItem extends HTMLElement {
                 </div>
             </div>
         </dialog>
+        <dialog class="task-execution-dialog">
+          <div>
+            <h1>Executing...</h1>
+            <br>
+            <div id="task-stopwatch">00:00:00</div>
+            <br>
+            <button class="finish-btn">Finish</button> <button class="stop-btn">Stop execution</button>
+          </div>
+        </dialog>
         <label class="task-content">
           <span class="title">${title}</span>
         </label>
+        <button class="execute-btn">Execute</button>
         <button class= "info-btn" type="button">More info</button>
         <button class="delete-btn" type="button">Delete</button>
       </div>
@@ -204,6 +214,17 @@ class TaskItem extends HTMLElement {
     const deleteBtn = this.shadow.querySelector<HTMLButtonElement>('.delete-btn');
     const card = this.shadow.querySelector<HTMLDivElement>('.task-card');
     const infoBtn = this.shadow.querySelector<HTMLButtonElement>(".info-btn");
+    const execBtn = this.shadow.querySelector<HTMLButtonElement>(".execute-btn");
+
+    execBtn?.addEventListener('click', () => {
+      const dialog = this.shadow.querySelector<HTMLDialogElement>(".task-execution-dialog");
+
+      const finish = dialog?.querySelector<HTMLButtonElement>('.finish-btn');
+      const end = dialog?.querySelector<HTMLButtonElement>(".stop-btn");
+
+
+      dialog?.showModal();
+    });
 
     infoBtn?.addEventListener('click', () => {
       //Get dialog from the HTML
