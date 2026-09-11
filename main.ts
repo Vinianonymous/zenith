@@ -8,7 +8,6 @@ const settings:Settings = loadSettings();
 const alarm_audio = new Audio(settings.cycleAlarmPath);
 
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
-
 let globalTime = {
     'hours':0,
     'minutes':0,
@@ -35,7 +34,11 @@ function HandleGlobalStopwatch() {
         let second = String(globalTime.seconds).padStart(2, "0");
 
         globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
-       
+        if (settings.tickingEnabled) {
+            console.log("I am playing successfuullyyyy");
+            // TODO: Implement ticking noise here
+        }
+        
         if (globalTime.minutes % settings.cyclePeriod == 0 && globalTime.seconds == 0) {
             alarm_audio.play();
         }

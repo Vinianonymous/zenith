@@ -36,6 +36,7 @@ export type Task = {
 export type Settings = {
     cyclePeriod: number;
     cycleAlarmPath: string;
+    tickingEnabled:boolean
 };
 export type editTaskRequest = {
     newData:Task

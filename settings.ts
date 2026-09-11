@@ -3,7 +3,8 @@ import {Settings} from "./types.js"
 export function loadSettings(){
     const DEFAULTS: Settings = {
         cycleAlarmPath:"alarm.mp3",
-        cyclePeriod:15
+        cyclePeriod:15,
+        tickingEnabled: false
     }
     try {
         const raw = localStorage.getItem('settings');
