@@ -4,7 +4,8 @@ export function loadSettings(){
     const DEFAULTS: Settings = {
         cycleAlarmPath:"alarm.mp3",
         cyclePeriod:15,
-        tickingEnabled: false
+        tickingEnabled: false,
+        tickingSoundPath:"ticking.mp3"
     }
     try {
         const raw = localStorage.getItem('settings');

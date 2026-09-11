@@ -6,6 +6,7 @@ const settings:Settings = loadSettings();
 
 // is relative to index.html, so alarm.mp3 must sit next to index.html.
 const alarm_audio = new Audio(settings.cycleAlarmPath);
+const ticking_audio = new Audio(settings.tickingSoundPath);
 
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
 let globalTime = {
@@ -35,8 +36,7 @@ function HandleGlobalStopwatch() {
 
         globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
         if (settings.tickingEnabled) {
-            console.log("I am playing successfuullyyyy");
-            // TODO: Implement ticking noise here
+            ticking_audio.play();
         }
         
         if (globalTime.minutes % settings.cyclePeriod == 0 && globalTime.seconds == 0) {

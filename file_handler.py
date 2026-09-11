@@ -38,7 +38,7 @@ class FileHandler:
                 # Parse the JSON text into Python objects (a list of dicts)
                 # and store them in `data`.
                 data = json.load(file)
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
             # First-ever run: the data file doesn't exist yet. Instead of
             # crashing, return an empty list — "no tasks yet" is a perfectly
             # valid state. The file gets created on the first writeData().

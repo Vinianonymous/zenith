@@ -1,24 +1,3 @@
-# ============================================================================
-# main.py — THE BACKEND: a tiny HTTP API built with FastAPI
-# ============================================================================
-# While main.ts runs IN THE BROWSER, this file runs on YOUR COMPUTER as a
-# server (start it with `uvicorn main:app --reload`, or via the `fastapi`
-# command). The frontend talks to it over HTTP (see api.ts):
-#
-#   GET    /tasks   -> return all tasks
-#   POST   /tasks   -> create one task (JSON body)
-#   DELETE /tasks   -> delete one task by id (JSON body {taskId: ...})
-#
-# FASTAPI IN 30 SECONDS: it maps URLs to plain Python functions. You write a
-# normal function, put a DECORATOR like @app.get("/tasks") above it, and
-# FastAPI (1) listens for matching HTTP requests, (2) converts/validates
-# inputs using your type hints + Pydantic models, (3) calls your function,
-# (4) serializes whatever you return into JSON. Enum of ideas below.
-
-# --- Imports: tools from installed libraries + the standard library. ---
-# FastAPI: the web framework itself (routing, validation, JSON responses).
-# Path: object-oriented file paths. Used to locate data/tasks.json relative
-# to THIS file, so the server works no matter which folder you start it from.
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -62,14 +41,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- DATA MODELS: the exact shapes of JSON this API accepts. ---
-# class Task(BaseModel) declares: "a valid task is a dict with THESE keys
-# and THESE value types". When a POST arrives, FastAPI parses the JSON body
-# and validates it against this model AUTOMATICALLY: missing/wrong-typed
-# fields get a 422 error response without you writing any checks. Inside the
-# handler, `task` is then a Task OBJECT (not a raw dict) with .name etc.
-# NOTE: field names/types must match what api.ts sends AND what the
-# frontend's Task type declares — the three files form one contract.
 class Task(BaseModel):
     name:str
     description:str
@@ -80,6 +51,7 @@ class Task(BaseModel):
 # because a delete request carries only an id, not a whole task.
 class deleteTaskRequest(BaseModel):
     taskId: str
+
 
 # --- ROUTES: URL -> function. Each decorator says "when a request with this
 # HTTP method arrives at this path, call the function below it". ---
@@ -124,6 +96,23 @@ def createTask(task: Task):
         "task": new_task
     }
 
+class editTaskRequest(BaseModel):
+    newData:Task
+
+@app.post('/edit/tasks')
+def editTask(request:editTaskRequest):
+
+    tasks = FileHandler.readData(TASKS_FILE)
+
+    tasks = [request.model_dump()['newData'] if request.newData.id == task['id'] else task for task in tasks]
+
+    
+    FileHandler.writeData(TASKS_FILE, tasks)
+
+    return {
+        "message": "Task edited with happy success uwu"
+    }
+
 
 # @app.delete("/tasks"): handles DELETE /tasks. Same body-parsing trick as
 # POST: `request: deleteTaskRequest` means "parse the JSON body into this
@@ -132,10 +121,7 @@ def createTask(task: Task):
 def deleteTask(request: deleteTaskRequest):
     tasks = FileHandler.readData(TASKS_FILE)
 
-    # Rebuild the list WITHOUT the deleted task. This LIST COMPREHENSION
-    # reads as: "keep every task whose id is NOT the requested one".
-    # [expression FOR item IN list IF condition] — the compact Python way to
-    # write filter loops. The result is a NEW list; the old one is discarded.
+    
     tasks = [task for task in tasks if task["id"] != request.taskId]
 
     FileHandler.writeData(TASKS_FILE, tasks)
