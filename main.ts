@@ -13,7 +13,7 @@ let globalTime = {
     'hours':0,
     'minutes':0,
     'seconds':0
-}
+} 
 
 
 function HandleGlobalStopwatch() {

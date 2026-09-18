@@ -220,6 +220,15 @@ class TaskItem extends HTMLElement {
       const dialog = this.shadow.querySelector<HTMLDialogElement>(".task-execution-dialog");
 
       const finish = dialog?.querySelector<HTMLButtonElement>('.finish-btn');
+      finish?.addEventListener('click', () => {
+        dialog?.remove()
+        this.dispatchEvent(new CustomEvent('task-delete', {
+          detail: { id },
+          bubbles: true,
+          composed: true
+        }));
+      })
+
       const end = dialog?.querySelector<HTMLButtonElement>(".stop-btn");
 
 

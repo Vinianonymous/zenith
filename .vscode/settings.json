@@ -1,13 +1,6 @@
 {
-    // Prevent Live Server from full-page-reloading when the backend
-    // rewrites task data (or when Python caches / the venv change).
-    // Only frontend files should trigger a reload.
-    "liveServer.settings.ignoreFiles": [
-        ".vscode/**",
-        "data/**",
-        "**/*.py",
-        "__pycache__/**",
-        ".venv/**",
-        "*.mp3"
-    ]
+  "fiveServer.highlight": true,
+  "fiveServer.ignore": [
+    "**/data/**"
+  ]
 }

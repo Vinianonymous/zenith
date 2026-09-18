@@ -12,27 +12,13 @@ from pydantic import BaseModel
 # Our own helper for reading/writing the JSON data file.
 from file_handler import FileHandler
 
-# Task data lives outside the Live Server watch set so frontend
-# auto-reload doesn't trigger a full page refresh on every write.
-# __file__ = the path of THIS file (main.py). .resolve() makes it absolute
-# (resolving symlinks), .parent is its folder, / "data" / "tasks.json"
-# JOINS path segments with the correct separator for your OS. str(...) turns
-# the Path object into a plain string for FileHandler.
 TASKS_FILE = str(Path(__file__).resolve().parent / "data" / "tasks.json")
 
 # Create THE application object. `uvicorn main:app` means "in file main.py,
 # find the variable named app". All @app decorators below register routes
 # ON this object.
 app = FastAPI()
-# --- CORS setup: who is allowed to call this API from a browser. ---
-# The frontend page is served from one origin (e.g. Live Server on
-# http://127.0.0.1:5500) while this API lives on another
-# (http://127.0.0.1:8000). Browsers BLOCK such cross-origin fetch() calls
-# UNLESS the server explicitly opts in via CORS headers — that opt-in is
-# what this middleware adds to every response.
-# allow_origins=["*"] = accept requests from ANY website. Convenient for
-# local development, DANGEROUS in production (any site could then read and
-# modify your tasks) — restrict this to your real frontend domain on deploy.
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # development only

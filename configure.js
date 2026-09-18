@@ -1,37 +1,24 @@
-"use strict";
-const cycleInput = document.getElementById('cycle-interval');
-function saveSettings(cycleInterval) {
-    try {
-        const settings = {
-            cycleInterval
-        };
-        localStorage.setItem('settings', JSON.stringify(settings));
-    }
-    catch (err) {
-        console.error('Failed to save settings:', err);
-    }
-}
-function loadSettings() {
-    try {
-        const serializedState = localStorage.getItem('settings');
-        if (serializedState === null) {
-            return 15;
-        }
-        const settings = JSON.parse(serializedState);
-        if (typeof settings.cycleInterval !== 'number') {
-            return 15;
-        }
-        cycleInput.value = String(settings.cycleInterval);
-        return settings.cycleInterval;
-    }
-    catch (err) {
-        console.error('Failed to load settings:', err);
-        return 15;
-    }
-}
-let cycleInterval = loadSettings();
+import { saveSettings, loadSettings } from "./settings.js";
 const saveBtn = document.getElementById('save-btn');
-saveBtn?.addEventListener('click', () => {
-    cycleInterval = Number(cycleInput.value);
-    saveSettings(cycleInterval);
+const cyclePeriodInput = document.getElementById('cycle-interval');
+const cycleAlarmPathInput = document.getElementById('cycle-alarm-path');
+const tickingSoundEnabled = document.getElementById('tickingEnable');
+const tickingSoundPath = document.getElementById('tickingSoundPath');
+const s = loadSettings();
+console.log(s);
+cyclePeriodInput.value = s.cyclePeriod;
+cycleAlarmPathInput.value = s.cycleAlarmPath;
+tickingSoundEnabled.checked = s.tickingEnabled;
+tickingSoundPath.value = s.tickingSoundPath;
+saveBtn.addEventListener('click', () => {
+    const cyclePeriodI = +cyclePeriodInput.value;
+    const cycleAlarmPathI = cycleAlarmPathInput.value;
+    const toggleTicking = tickingSoundEnabled.checked;
+    const settings = {
+        cyclePeriod: cyclePeriodI,
+        cycleAlarmPath: cycleAlarmPathI,
+        tickingEnabled: toggleTicking,
+        tickingSoundPath: tickingSoundPath.value
+    };
+    saveSettings(settings);
 });
