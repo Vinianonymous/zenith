@@ -89,6 +89,7 @@ function createTaskElement(task: Task): HTMLElement {
     taskItem.setAttribute('description', task.description);
 
     taskItem.setAttribute('id', task.id)
+    taskItem.setAttribute('timeSpent', String(task.timeSpent))
     return taskItem;
 }
 
@@ -230,7 +231,8 @@ form.addEventListener('submit', async (event) => {
         // crypto.randomUUID() generates a v4 UUID like
         // "3f6d...-...". Built into browsers — no library needed. Created
         // HERE (client-side) so the UI can use the id immediately.
-        id: crypto.randomUUID()
+        id: crypto.randomUUID(),
+        timeSpent: 0
     };
 
     console.log(task);

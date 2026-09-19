@@ -32,6 +32,7 @@ class Task(BaseModel):
     description:str
     dueDate:str
     id:str
+    timeSpent:int
 
 # Shape of the DELETE request body: {"taskId": "..."}. A separate tiny model
 # because a delete request carries only an id, not a whole task.

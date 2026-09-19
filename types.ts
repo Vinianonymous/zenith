@@ -28,6 +28,7 @@ export type Task = {
     // Unique id generated with crypto.randomUUID() when the task is created.
     // The backend uses this to know WHICH task to delete.
     id: string;
+    timeSpent: number;
 };
 
 // [Vinny work] Changed cyclePeriod from string to number — both configure.html

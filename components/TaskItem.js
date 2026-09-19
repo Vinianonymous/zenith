@@ -14,6 +14,11 @@ class TaskItem extends HTMLElement {
         const description = this.getAttribute('description') ?? '';
         const date = this.getAttribute('dueDate') ?? '';
         const id = this.getAttribute('id') ?? '';
+        // Seconds already accumulated by previous execution sessions (stored in
+        // the `timeSpent` attribute). The default must guard the attribute, not
+        // its value: `Number(null)` is 0 and never null, which would leave `?? 0`
+        // as dead code.
+        let timeSpent = Number(this.getAttribute('timeSpent') ?? 0);
         this.shadow.innerHTML = `
       <style>
         :host {
@@ -209,8 +214,30 @@ class TaskItem extends HTMLElement {
         const execBtn = this.shadow.querySelector(".execute-btn");
         execBtn?.addEventListener('click', () => {
             const dialog = this.shadow.querySelector(".task-execution-dialog");
+            const stopwatch = dialog?.querySelector('#task-stopwatch');
+            // Stopwatch state: startTime anchors THIS session; timeSpent holds every
+            // completed session before it, so the shown total is their sum (seconds).
+            const startTime = Date.now();
+            const timer = setInterval(() => {
+                const totalSeconds = timeSpent + Math.floor((Date.now() - startTime) / 1000);
+                const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+                const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+                const seconds = String(totalSeconds % 60).padStart(2, '0');
+                if (stopwatch) {
+                    stopwatch.textContent = `${hours}:${minutes}:${seconds}`;
+                }
+            }, 1000);
+            const persist = () => {
+                clearInterval(timer);
+                timeSpent += Math.floor((Date.now() - startTime) / 1000);
+                this.setAttribute('timeSpent', String(timeSpent));
+            };
             const finish = dialog?.querySelector('.finish-btn');
             finish?.addEventListener('click', () => {
+                // Finishing wipes the task (and with it timeSpent) — deliberately no
+                // persist() here. The timer must still stop so it never ticks on a
+                // removed element.
+                clearInterval(timer);
                 dialog?.remove();
                 this.dispatchEvent(new CustomEvent('task-delete', {
                     detail: { id },
@@ -219,6 +246,11 @@ class TaskItem extends HTMLElement {
                 }));
             });
             const end = dialog?.querySelector(".stop-btn");
+            end?.addEventListener('click', () => {
+                console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
+                persist();
+                dialog?.remove();
+            });
             dialog?.showModal();
         });
         infoBtn?.addEventListener('click', () => {
@@ -243,7 +275,8 @@ class TaskItem extends HTMLElement {
                     name: newName,
                     description: newDesc,
                     dueDate: newDate,
-                    id: this.id
+                    id: this.id,
+                    timeSpent: timeSpent
                 };
                 const request = {
                     newData: task
