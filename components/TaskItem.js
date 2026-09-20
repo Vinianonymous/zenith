@@ -215,23 +215,15 @@ class TaskItem extends HTMLElement {
         execBtn?.addEventListener('click', () => {
             const dialog = this.shadow.querySelector(".task-execution-dialog");
             const stopwatch = dialog?.querySelector('#task-stopwatch');
-            // Stopwatch state: startTime anchors THIS session; timeSpent holds every
-            // completed session before it, so the shown total is their sum (seconds).
-            const startTime = Date.now();
             const timer = setInterval(() => {
-                const totalSeconds = timeSpent + Math.floor((Date.now() - startTime) / 1000);
-                const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-                const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-                const seconds = String(totalSeconds % 60).padStart(2, '0');
+                timeSpent++;
+                const hours = String(Math.floor(timeSpent / 3600)).padStart(2, '0');
+                const minutes = String(Math.floor((timeSpent % 3600) / 60)).padStart(2, '0');
+                const seconds = String(timeSpent % 60).padStart(2, '0');
                 if (stopwatch) {
                     stopwatch.textContent = `${hours}:${minutes}:${seconds}`;
                 }
             }, 1000);
-            const persist = () => {
-                clearInterval(timer);
-                timeSpent += Math.floor((Date.now() - startTime) / 1000);
-                this.setAttribute('timeSpent', String(timeSpent));
-            };
             const finish = dialog?.querySelector('.finish-btn');
             finish?.addEventListener('click', () => {
                 // Finishing wipes the task (and with it timeSpent) — deliberately no
@@ -248,8 +240,9 @@ class TaskItem extends HTMLElement {
             const end = dialog?.querySelector(".stop-btn");
             end?.addEventListener('click', () => {
                 console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
-                persist();
-                dialog?.remove();
+                clearInterval(timer);
+                this.setAttribute('timeSpent', String(timeSpent));
+                dialog.close();
             });
             dialog?.showModal();
         });
