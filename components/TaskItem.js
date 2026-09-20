@@ -212,6 +212,13 @@ class TaskItem extends HTMLElement {
         const card = this.shadow.querySelector('.task-card');
         const infoBtn = this.shadow.querySelector(".info-btn");
         const execBtn = this.shadow.querySelector(".execute-btn");
+        const stopwatch = this.shadow.querySelector('#task-stopwatch');
+        const hours = String(Math.floor(timeSpent / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((timeSpent % 3600) / 60)).padStart(2, '0');
+        const seconds = String(timeSpent % 60).padStart(2, '0');
+        if (stopwatch) {
+            stopwatch.textContent = `${hours}:${minutes}:${seconds}`;
+        }
         execBtn?.addEventListener('click', () => {
             const dialog = this.shadow.querySelector(".task-execution-dialog");
             dialog.addEventListener('close', (event) => {
@@ -219,9 +226,23 @@ class TaskItem extends HTMLElement {
                 console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
                 clearInterval(timer);
                 this.setAttribute('timeSpent', String(timeSpent));
+                const task = {
+                    name: title,
+                    description: description,
+                    dueDate: date,
+                    id: id,
+                    timeSpent: timeSpent
+                };
+                const request = {
+                    newData: task
+                };
+                this.dispatchEvent(new CustomEvent('task-edition', {
+                    detail: { task },
+                    bubbles: true,
+                    composed: true
+                }));
                 dialog.close();
             });
-            const stopwatch = dialog?.querySelector('#task-stopwatch');
             const timer = setInterval(() => {
                 timeSpent++;
                 const hours = String(Math.floor(timeSpent / 3600)).padStart(2, '0');
