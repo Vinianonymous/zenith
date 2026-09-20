@@ -1,5 +1,3 @@
-// TODO: Fix the dialog no longer showing up once you clear it once in the execution dialog. (end button function)
-// TODO: Add a saveguard for when the user deletes the dialog by pressing esc instead of the button
 import {Task, editTaskRequest} from "../types.js"
 class TaskItem extends HTMLElement {
   private shadow: ShadowRoot;
@@ -224,6 +222,13 @@ class TaskItem extends HTMLElement {
 
     execBtn?.addEventListener('click', () => {
       const dialog = this.shadow.querySelector<HTMLDialogElement>(".task-execution-dialog") as HTMLDialogElement;
+      dialog.addEventListener('close', (event) => {
+        console.log('closing dialog');
+        console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
+        clearInterval(timer);
+        this.setAttribute('timeSpent', String(timeSpent));
+        dialog.close();
+      })
       const stopwatch = dialog?.querySelector<HTMLDivElement>('#task-stopwatch');
 
  
@@ -253,9 +258,6 @@ class TaskItem extends HTMLElement {
 
       const end = dialog?.querySelector<HTMLButtonElement>(".stop-btn");
       end?.addEventListener('click', ()=>{
-        console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
-        clearInterval(timer);
-        this.setAttribute('timeSpent', String(timeSpent));
         dialog.close();
       })
 

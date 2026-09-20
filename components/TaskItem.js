@@ -214,6 +214,13 @@ class TaskItem extends HTMLElement {
         const execBtn = this.shadow.querySelector(".execute-btn");
         execBtn?.addEventListener('click', () => {
             const dialog = this.shadow.querySelector(".task-execution-dialog");
+            dialog.addEventListener('close', (event) => {
+                console.log('closing dialog');
+                console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
+                clearInterval(timer);
+                this.setAttribute('timeSpent', String(timeSpent));
+                dialog.close();
+            });
             const stopwatch = dialog?.querySelector('#task-stopwatch');
             const timer = setInterval(() => {
                 timeSpent++;
@@ -239,9 +246,6 @@ class TaskItem extends HTMLElement {
             });
             const end = dialog?.querySelector(".stop-btn");
             end?.addEventListener('click', () => {
-                console.log("Always keep in mind how just as a day ends, so does the time. Are you truly building or just giving excuses to postpone?");
-                clearInterval(timer);
-                this.setAttribute('timeSpent', String(timeSpent));
                 dialog.close();
             });
             dialog?.showModal();
