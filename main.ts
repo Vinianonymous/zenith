@@ -11,7 +11,7 @@ const ticking_audio = new Audio(settings.tickingSoundPath);
 let currentCycle =0;
 
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
-let secondsElapsed = 55;
+let secondsElapsed = 119;
 
 
 function HandleGlobalStopwatch() {
@@ -32,6 +32,10 @@ function HandleGlobalStopwatch() {
             const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
             const messageDisplay = document.getElementById('message-container') as HTMLDivElement;
             const ackBtn = document.getElementById('ack-btn');
+
+            if (currentCycle > settings.cycleMessages.length) {
+                currentCycle = 0;
+            }
             messageDisplay.textContent = settings.cycleMessages[currentCycle];
             cycleMessage.showModal();
             ackBtn?.addEventListener('click', ()=> {
