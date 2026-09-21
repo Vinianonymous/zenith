@@ -17,9 +17,9 @@ function HandleGlobalStopwatch() {
     setInterval(() => {
         secondsElapsed++
 
-        let hour = String(secondsElapsed % 3600 / 60).padStart(2, "0");
-        let minute = String(secondsElapsed / 60).padStart(2, "0");
-        let second = String(secondsElapsed).padStart(2, "0");
+        const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
+        const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
+        const second = String(secondsElapsed % 60).padStart(2, '0');
 
         globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
         if (settings.tickingEnabled) {
