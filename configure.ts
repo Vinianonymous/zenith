@@ -14,8 +14,11 @@ cyclePeriodInput.value = s.cyclePeriod;
 cycleAlarmPathInput.value = s.cycleAlarmPath;
 tickingSoundEnabled.checked = s.tickingEnabled;
 tickingSoundPath.value = s.tickingSoundPath;
-// TODO: Fix that solves the problem where if theres more than one message, they get joined because of no \n between array elements
-cycleMessages.textContent = s.cycleMessages
+let messageText = "";
+s.cycleMessages.forEach((message:string) => {
+    messageText += message + "\n";
+});
+cycleMessages.textContent = messageText;
 
 saveBtn.addEventListener('click', ()=>{
     const cyclePeriodI = +cyclePeriodInput.value;
