@@ -8,15 +8,7 @@ The project currently uses a **TypeScript frontend**, a **FastAPI backend**, and
 
 ## Features
 
-* Create tasks
-* View saved tasks
-* Delete tasks
-* Task descriptions
-* Due dates
-* Persistent storage between sessions
-* REST-style HTTP API
-* Frontend/backend separation
-* CORS configuration for local development
+* A bunch of things I need to update lol
 
 ## Tech Stack
 
@@ -30,8 +22,8 @@ The project currently uses a **TypeScript frontend**, a **FastAPI backend**, and
 ### Backend
 
 * Python
-* FastAPI
-* Pydantic
-* Uvicorn
+    * FastAPI
+    * Pydantic
+    * Uvicorn
 
 

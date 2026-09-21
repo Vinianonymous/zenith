@@ -8,14 +8,16 @@ const settings:Settings = loadSettings();
 const alarm_audio = new Audio(settings.cycleAlarmPath);
 const ticking_audio = new Audio(settings.tickingSoundPath);
 
+let currentCycle =0;
+
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
-let secondsElapsed = 0;
+let secondsElapsed = 55;
 
 
 function HandleGlobalStopwatch() {
 
     setInterval(() => {
-        secondsElapsed++
+        secondsElapsed++;
 
         const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
         const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
@@ -25,11 +27,18 @@ function HandleGlobalStopwatch() {
         if (settings.tickingEnabled) {
             ticking_audio.play();
         }
-        
-        if (secondsElapsed / 60  % settings.cyclePeriod == 0 && secondsElapsed == 0) {
-            // TODO: Show Cycle Dialog with the given text
-                // Probably use a div, fetch it and set text value.
+        if (Number(minute)  % settings.cyclePeriod == 0 && secondsElapsed % 60 == 0) {
+            console.log('cycle!');
+            const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
+            const messageDisplay = document.getElementById('message-container') as HTMLDivElement;
+            const ackBtn = document.getElementById('ack-btn');
+            messageDisplay.textContent = settings.cycleMessages[currentCycle];
+            cycleMessage.showModal();
+            ackBtn?.addEventListener('click', ()=> {
+                cycleMessage.close();
+            })
             alarm_audio.play();
+            currentCycle++;
         }
     }, (1000));
 }
@@ -54,7 +63,7 @@ async function loadTasks() {
     tasks = await getTasks();
     RenderTasks();
 }
-
+ 
 // Kick off the initial load. NOT awaited (top-level await aside): the rest
 // of this file (grabbing buttons, attaching listeners) runs immediately,
 // and the list fills in whenever the network answers. The UI must work
