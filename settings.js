@@ -3,13 +3,15 @@ export function loadSettings() {
         cycleAlarmPath: "alarm.mp3",
         cyclePeriod: 15,
         tickingEnabled: false,
-        tickingSoundPath: "ticking.mp3"
+        tickingSoundPath: "ticking.mp3",
+        cycleMessages: ["Stretch", "Pray"]
     };
     try {
         const raw = localStorage.getItem('settings');
         if (raw == null)
             return DEFAULTS;
         const parsed = JSON.parse(raw);
+        console.log(parsed);
         return parsed;
     }
     catch (err) {

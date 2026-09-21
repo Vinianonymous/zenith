@@ -9,37 +9,26 @@ const alarm_audio = new Audio(settings.cycleAlarmPath);
 const ticking_audio = new Audio(settings.tickingSoundPath);
 
 const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
-let globalTime = {
-    'hours':0,
-    'minutes':0,
-    'seconds':0
-} 
+let secondsElapsed = 0;
 
 
 function HandleGlobalStopwatch() {
 
     setInterval(() => {
-        globalTime.seconds ++;
-        if (globalTime.seconds > 59) {
-            globalTime.seconds = 0;
-            globalTime.minutes ++;
-        }
+        secondsElapsed++
 
-        if (globalTime.minutes > 59) {
-            globalTime.minutes = 0;
-            globalTime.hours ++;
-        }
-       
-        let hour = String(globalTime.hours).padStart(2, "0");
-        let minute = String(globalTime.minutes).padStart(2, "0");
-        let second = String(globalTime.seconds).padStart(2, "0");
+        let hour = String(secondsElapsed % 3600 / 60).padStart(2, "0");
+        let minute = String(secondsElapsed / 60).padStart(2, "0");
+        let second = String(secondsElapsed).padStart(2, "0");
 
         globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
         if (settings.tickingEnabled) {
             ticking_audio.play();
         }
         
-        if (globalTime.minutes % settings.cyclePeriod == 0 && globalTime.seconds == 0) {
+        if (secondsElapsed / 60  % settings.cyclePeriod == 0 && secondsElapsed == 0) {
+            // TODO: Show Cycle Dialog with the given text
+                // Probably use a div, fetch it and set text value.
             alarm_audio.play();
         }
     }, (1000));

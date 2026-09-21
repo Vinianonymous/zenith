@@ -39,6 +39,7 @@ export type Settings = {
     cycleAlarmPath: string;
     tickingEnabled:boolean;
     tickingSoundPath:string;
+    cycleMessages:string[];
 };
 export type editTaskRequest = {
     newData:Task
