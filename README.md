@@ -35,15 +35,3 @@ The project currently uses a **TypeScript frontend**, a **FastAPI backend**, and
 * Uvicorn
 
 
-## Current Status
-
-**Work in Progress**
-
-Zenith is functional as a basic task manager, but its architecture and feature set are still evolving.
-
-The repository currently has 12 commits and is explicitly categorized on GitHub as a work in progress.
-
-## Why Zenith?
-
-Zenith started as a way to build something practical while learning full-stack development.
-
