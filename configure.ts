@@ -34,5 +34,3 @@ saveBtn.addEventListener('click', ()=>{
     saveSettings(settings);
 })
 
-
-

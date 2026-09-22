@@ -1,0 +1,2 @@
+Delete all of the comments because there's more loC than loC
+Begin working in how to 1. Save elapsedSeconds and 2. Refine Statistic data from such.

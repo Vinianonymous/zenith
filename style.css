@@ -1,4 +1,4 @@
-/* ===== Reset & Base ===== */
+
 *,
 *::before,
 *::after {
@@ -31,7 +31,6 @@ body {
     text-align: center;
 }
 
-/* ===== Header ===== */
 header {
     width: 100%;
     text-align: center;
@@ -50,7 +49,6 @@ header h1 {
     color: transparent;
 }
 
-/* ===== Navigation ===== */
 nav {
     display: flex;
     justify-content: center;
@@ -78,7 +76,6 @@ nav a.current {
     font-weight: 600;
 }
 
-/* ===== Main ===== */
 main {
     flex: 1;
     width: 100vw;
@@ -88,35 +85,32 @@ main {
     align-items: center;
 }
 
-/* ===== Stopwatch ===== */
-/* ===== Stopwatch Container ===== */
 #stopwatch-container {
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
-    /* Layout & Centering */
-    width: 100%;                  /* Fills main container width */
+
+    width: 100%;
     height: 15%;
-    display: flex;                /* Uses Flexbox layout */
-    flex-direction: column;       /* Stacks text, task items, and buttons vertically */
-    align-items: center;          /* Centers children horizontally */
-    justify-content: center;       /* Centers children vertically */
-    text-align: center;           /* Ensures inline content stays centered */
-    margin: 0 auto 1.5rem auto;   /* Centers the container box itself */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto 1.5rem auto;
 }
 
-/* ===== Stopwatch Text ===== */
 #stopwatch-text {
     font-size: 2.5rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.05em;
     color: var(--text);
-    width: 100%;                  /* Ensures full width for text-align to work */
+    width: 100%;
     text-align: center;
     margin-bottom: 1rem;
 }
-/* ===== Default Element Rules ===== */
+
 p {
     color: var(--text);
     margin-bottom: 1rem;
@@ -196,7 +190,7 @@ dialog {
     transform: translateX(-50%);
     color: white;
 }
-/* ===== Settings ===== */
+
 #settings-container {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -229,7 +223,6 @@ dialog {
     width: 100%;
 }
 
-/* ===== Footer ===== */
 footer {
     width: 100%;
     text-align: center;

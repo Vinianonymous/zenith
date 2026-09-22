@@ -2,28 +2,19 @@ import {Task, editTaskRequest} from "../types.js"
 class TaskItem extends HTMLElement {
   private shadow: ShadowRoot;
 
-
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback(): void {
-    // Read the attributes main.ts set with setAttribute(). getAttribute()
-    // returns `string | null` (null when the attribute is missing), and
-    // `??` ("nullish coalescing") substitutes the right-hand default ONLY
-    // when the left side is null/undefined — unlike `||`, it keeps other
-    // falsy values like "" intact.
+
     const title: string = this.getAttribute('title') ?? 'Untitled Task';
     const description: string = this.getAttribute('description') ?? '';
     const date: string = this.getAttribute('dueDate') ?? '';
     const id: string = this.getAttribute('id') ?? '';
-    // Seconds already accumulated by previous execution sessions (stored in
-    // the `timeSpent` attribute). The default must guard the attribute, not
-    // its value: `Number(null)` is 0 and never null, which would leave `?? 0`
-    // as dead code.
-    let timeSpent = Number(this.getAttribute('timeSpent') ?? 0);
 
+    let timeSpent = Number(this.getAttribute('timeSpent') ?? 0);
 
     this.shadow.innerHTML = `
       <style>
@@ -252,7 +243,6 @@ class TaskItem extends HTMLElement {
         dialog.close();
       })
 
- 
       const timer = setInterval(() => {
         timeSpent++;
         const hours = String(Math.floor(timeSpent / 3600)).padStart(2, '0');
@@ -265,9 +255,7 @@ class TaskItem extends HTMLElement {
 
       const finish = dialog?.querySelector<HTMLButtonElement>('.finish-btn');
       finish?.addEventListener('click', () => {
-        // Finishing wipes the task (and with it timeSpent) — deliberately no
-        // persist() here. The timer must still stop so it never ticks on a
-        // removed element.
+
         clearInterval(timer);
         dialog?.remove()
         this.dispatchEvent(new CustomEvent('task-delete', {
@@ -282,15 +270,13 @@ class TaskItem extends HTMLElement {
         dialog.close();
       })
 
-
       dialog?.showModal();
     });
 
     infoBtn?.addEventListener('click', () => {
-      //Get dialog from the HTML
+
       const dialog = this.shadow.querySelector<HTMLDialogElement>('.task-info-dialog');
 
-      // Bunch of lines that set the inputs into the current data values.
       const taskName = this.shadow.querySelector<HTMLInputElement>('.task-name-input') as HTMLInputElement;
       taskName.value = title;
 
@@ -303,7 +289,6 @@ class TaskItem extends HTMLElement {
       const idE = this.shadow.querySelector<HTMLDivElement>('.UUID') as HTMLDivElement;
       idE.textContent = id;
 
-      // Now for the buttonsssssssssss aaaaaaaa
       const saveBtn = this.shadow.getElementById('save-btn') as HTMLButtonElement;
       saveBtn.addEventListener('click', ()=>{
         const newName = taskName.value;
@@ -334,12 +319,9 @@ class TaskItem extends HTMLElement {
         dialog?.remove();
       })
 
-
-      // Show dialog and also some cool quote ig??
       dialog?.showModal();
       console.log("Information arrives to those who pursue it.");
     })
-
 
     deleteBtn?.addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('task-delete', {
@@ -350,6 +332,5 @@ class TaskItem extends HTMLElement {
     });
   }
 }
-
 
 customElements.define('task-item', TaskItem);
