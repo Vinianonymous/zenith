@@ -1,5 +1,5 @@
-import { Settings } from "./types.js";
-import { saveSettings, loadSettings } from "./settings.js";
+import { Settings } from "./types/types.js";
+import { saveSettings, loadSettings } from "./services/settings.js";
 
 const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
 const cyclePeriodInput = document.getElementById('cycle-interval') as HTMLInputElement;

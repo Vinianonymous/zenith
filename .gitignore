@@ -1,9 +1,12 @@
 # Compiled output: the .ts files are the source of truth.
-# Rebuild locally with:  tsc main.ts api.ts types.ts components/TaskItem.ts --target ES2020 --module ES2020 --moduleResolution bundler
-/main.js
-/api.js
-/types.js
-/components/TaskItem.js
+# Rebuild locally with (from repo root):
+#   tsc frontend/src/main.ts frontend/src/configure.ts frontend/src/services/api.ts frontend/src/services/settings.ts frontend/src/types/types.ts frontend/src/components/TaskItem.ts --target ES2020 --module ES2020 --moduleResolution bundler
+/frontend/src/main.js
+/frontend/src/configure.js
+/frontend/src/services/api.js
+/frontend/src/services/settings.js
+/frontend/src/types/types.js
+/frontend/src/components/TaskItem.js
 
 # Python caches and virtualenv
 __pycache__/

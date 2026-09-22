@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from file_handler import FileHandler
 
-TASKS_FILE = str(Path(__file__).resolve().parent / "data" / "tasks.json")
+TASKS_FILE = str(Path(__file__).resolve().parent.parent / "data" / "tasks.json")
 
 app = FastAPI()
 

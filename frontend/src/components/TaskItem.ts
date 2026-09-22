@@ -1,4 +1,4 @@
-import {Task, editTaskRequest} from "../types.js"
+import {Task, editTaskRequest} from "../types/types.js"
 class TaskItem extends HTMLElement {
   private shadow: ShadowRoot;
 

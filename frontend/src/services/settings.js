@@ -1,9 +1,9 @@
 export function loadSettings() {
     const DEFAULTS = {
-        cycleAlarmPath: "alarm.mp3",
+        cycleAlarmPath: "../audio/alarm.mp3",
         cyclePeriod: 15,
         tickingEnabled: false,
-        tickingSoundPath: "ticking.mp3",
+        tickingSoundPath: "../audio/ticking.mp3",
         cycleMessages: ["Stretch", "Pray"]
     };
     try {

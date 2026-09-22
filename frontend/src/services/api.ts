@@ -1,6 +1,6 @@
 
 
-import {Task, editTaskRequest} from "./types.js"
+import {Task, editTaskRequest} from "../types/types.js"
 
 const API_URL = "http://127.0.0.1:8000";
 

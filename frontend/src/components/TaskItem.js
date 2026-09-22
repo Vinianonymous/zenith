@@ -1,16 +1,13 @@
 class TaskItem extends HTMLElement {
-    shadow;
     constructor() {
         super();
         this.shadow = this.attachShadow({ mode: 'open' });
     }
     connectedCallback() {
-
         const title = this.getAttribute('title') ?? 'Untitled Task';
         const description = this.getAttribute('description') ?? '';
         const date = this.getAttribute('dueDate') ?? '';
         const id = this.getAttribute('id') ?? '';
-
         let timeSpent = Number(this.getAttribute('timeSpent') ?? 0);
         this.shadow.innerHTML = `
       <style>
@@ -247,7 +244,6 @@ class TaskItem extends HTMLElement {
             }, 1000);
             const finish = dialog?.querySelector('.finish-btn');
             finish?.addEventListener('click', () => {
-
                 clearInterval(timer);
                 dialog?.remove();
                 this.dispatchEvent(new CustomEvent('task-delete', {
@@ -263,9 +259,7 @@ class TaskItem extends HTMLElement {
             dialog?.showModal();
         });
         infoBtn?.addEventListener('click', () => {
-
             const dialog = this.shadow.querySelector('.task-info-dialog');
-
             const taskName = this.shadow.querySelector('.task-name-input');
             taskName.value = title;
             const taskDesc = this.shadow.querySelector('.task-desc-input');
@@ -274,7 +268,6 @@ class TaskItem extends HTMLElement {
             dueDateInput.value = `${date}`;
             const idE = this.shadow.querySelector('.UUID');
             idE.textContent = id;
-
             const saveBtn = this.shadow.getElementById('save-btn');
             saveBtn.addEventListener('click', () => {
                 const newName = taskName.value;
@@ -301,7 +294,6 @@ class TaskItem extends HTMLElement {
             cancelBtn.addEventListener('click', () => {
                 dialog?.remove();
             });
-
             dialog?.showModal();
             console.log("Information arrives to those who pursue it.");
         });

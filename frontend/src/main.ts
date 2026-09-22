@@ -1,7 +1,7 @@
 
-import {getTasks, addTask, deleteTask, editTask} from "./api.js";
-import { Task, Settings} from "./types.js";
-import { loadSettings } from "./settings.js";
+import {getTasks, addTask, deleteTask, editTask} from "./services/api.js";
+import { Task, Settings} from "./types/types.js";
+import { loadSettings } from "./services/settings.js";
 const settings:Settings = loadSettings();
 
 const alarm_audio = new Audio(settings.cycleAlarmPath);
