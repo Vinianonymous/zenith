@@ -7,33 +7,45 @@ const settings:Settings = loadSettings();
 const alarm_audio = new Audio(settings.cycleAlarmPath);
 const ticking_audio = new Audio(settings.tickingSoundPath);
 
-let currentCycle =0;
 
-const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLParagraphElement;
-let secondsElapsed = 119;
+const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLDivElement;
+const resetGlobalStopwatchBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+let secondsElapsed = Number(localStorage.getItem('secondsElapsed')) ?? 0;
+
+function renderTime() {
+    const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
+    const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
+    const second = String(secondsElapsed % 60).padStart(2, '0');
+
+    globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
+}
+
+resetGlobalStopwatchBtn.addEventListener('click', ()=> {
+    secondsElapsed = 0;
+    localStorage.setItem('secondsElapsed', "0");
+    renderTime();
+})
+
+let currentCycle = (Math.floor(secondsElapsed / 3600) / 60) / settings.cyclePeriod;
 
 function HandleGlobalStopwatch() {
 
     setInterval(() => {
         secondsElapsed++;
+        localStorage.setItem('secondsElapsed', String(secondsElapsed));
+        renderTime();
 
-        const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
-        const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
-        const second = String(secondsElapsed % 60).padStart(2, '0');
-
-        globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
         if (settings.tickingEnabled) {
             ticking_audio.play();
         }
-        if (Number(minute)  % settings.cyclePeriod == 0 && secondsElapsed % 60 == 0) {
-            console.log('cycle!');
+        if (Math.floor((secondsElapsed % 3600) / 60)  % settings.cyclePeriod == 0 && secondsElapsed % 60 == 0) {
+            console.log(`Cycle ${currentCycle} Completed!`);
+
             const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
             const messageDisplay = document.getElementById('message-container') as HTMLDivElement;
             const ackBtn = document.getElementById('ack-btn');
 
-            if (currentCycle > settings.cycleMessages.length) {
-                currentCycle = 0;
-            }
+
             messageDisplay.textContent = settings.cycleMessages[currentCycle];
             cycleMessage.showModal();
             ackBtn?.addEventListener('click', ()=> {
@@ -41,6 +53,10 @@ function HandleGlobalStopwatch() {
             })
             alarm_audio.play();
             currentCycle++;
+            if (currentCycle == settings.cycleMessages.length) {
+                currentCycle = 0;
+            }
+
         }
     }, (1000));
 }

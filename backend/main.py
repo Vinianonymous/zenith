@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,17 +10,11 @@ from pydantic import BaseModel
 from file_handler import FileHandler
 
 TASKS_FILE = str(Path(__file__).resolve().parent.parent / "data" / "tasks.json")
+PAGES_FOLDER = str(Path(__file__).resolve().parent.parent / "frontend" )
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 class Task(BaseModel):
     name:str
@@ -50,7 +45,6 @@ def createTask(task: Task):
         "message": "Task has been genesified successfully",
         "task": new_task
     }
-
 class editTaskRequest(BaseModel):
     newData:Task
 
@@ -78,3 +72,5 @@ def deleteTask(request: deleteTaskRequest):
     return {
         "message": "Task deleted successfully"
     }
+
+app.mount("/", StaticFiles(directory=PAGES_FOLDER, html=True), name="pages")
