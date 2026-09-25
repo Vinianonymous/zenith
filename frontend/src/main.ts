@@ -38,7 +38,7 @@ const ackBtn = document.getElementById('ack-btn') as HTMLButtonElement;
 const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
 let iCInterval: ReturnType<typeof setInterval> | undefined;
 const iCBtn = document.getElementById('intercycle-btn') as HTMLButtonElement;
-const ICAudio = new Audio("alarm.mp3");
+const ICAudio = new Audio("../audio/alarm.mp3");
 const ICLabel = document.getElementById('intercycle-time') as HTMLDivElement;
 let isICCounting = false
 
@@ -49,7 +49,10 @@ function handleIC() {
         ICAudio.play();
         ackBtn.disabled = false;
         cycleMessage.close();
-        ICLabel.hidden = false;
+        ICLabel.textContent = "00:00:00";
+        ICLabel.hidden = true;
+
+        isCounting = false;
         HandleGlobalStopwatch();
     }
     ICLabel.hidden = false;
@@ -57,8 +60,7 @@ function handleIC() {
     iCBtn.addEventListener('click', ()=> {
         endIC();
     })
-    clearInterval(globalIntervalID);
-    isCounting=false;
+    HandleGlobalStopwatch();
     // Intercycle period display here
     const render = () => {
         const hour = String(Math.floor(remIC / 3600)).padStart(2, '0');
