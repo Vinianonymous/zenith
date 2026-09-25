@@ -20,13 +20,15 @@
                 <input type="date" id="task-due-date" name="task-due-date"><br><br>
 
                 <button type="submit">Add Task</button>
-                <button type="button" id="cancel-button">Cancel</button>
+                <button id="cancel-task-add-btn">Cancel</button>
             </form>
         </dialog>
         <dialog id="cycle-message-dialog">
             <div>
                 <div id="message-container"></div>
+                <div id="intercycle-time" hidden="true"></div>
                 <button id="ack-btn">Acknowledge</button>
+                <button id="intercycle-btn">Enter Intercycle</button>
             </div>
         </dialog>
         
@@ -35,8 +37,8 @@
         </header>
         <nav>
             <a class="current">Home</a>
-            <a href="/pages/statistics.html">Statistics</a>
-            <a href="/pages/configure.html">Configure</a>
+            <a href="statistics.html">Statistics</a>
+            <a href="configure.html">Configure</a>
         </nav>
 
         <main>

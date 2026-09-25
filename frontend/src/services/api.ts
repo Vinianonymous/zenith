@@ -2,7 +2,7 @@
 
 import {Task, editTaskRequest} from "../types/types.js"
 
-const API_URL = "";
+const API_URL = "http://127.0.0.1:8000";
 
 export async function getTasks() {
 

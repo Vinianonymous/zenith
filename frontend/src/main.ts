@@ -4,14 +4,8 @@ import { Task, Settings} from "./types/types.js";
 import { loadSettings } from "./services/settings.js";
 const settings:Settings = loadSettings();
 
-const alarm_audio = new Audio(settings.cycleAlarmPath);
-const ticking_audio = new Audio(settings.tickingSoundPath);
-
-
-const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLDivElement;
-const resetGlobalStopwatchBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+// STOPWATCH HANDLING
 let secondsElapsed = Number(localStorage.getItem('secondsElapsed')) ?? 0;
-
 function renderTime() {
     const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
     const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
@@ -20,6 +14,19 @@ function renderTime() {
     globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
 }
 
+const alarm_audio = new Audio(settings.cycleAlarmPath);
+const ticking_audio = new Audio(settings.tickingSoundPath);
+
+
+const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLDivElement;
+renderTime();
+
+
+const resetGlobalStopwatchBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+
+let isCounting = false;
+let globalIntervalID: ReturnType<typeof setInterval> | undefined;
+
 resetGlobalStopwatchBtn.addEventListener('click', ()=> {
     secondsElapsed = 0;
     localStorage.setItem('secondsElapsed', "0");
@@ -27,10 +34,66 @@ resetGlobalStopwatchBtn.addEventListener('click', ()=> {
 })
 
 let currentCycle = (Math.floor(secondsElapsed / 3600) / 60) / settings.cyclePeriod;
+const ackBtn = document.getElementById('ack-btn') as HTMLButtonElement;
+const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
+let iCInterval: ReturnType<typeof setInterval> | undefined;
+const iCBtn = document.getElementById('intercycle-btn') as HTMLButtonElement;
+const ICAudio = new Audio("alarm.mp3");
+const ICLabel = document.getElementById('intercycle-time') as HTMLDivElement;
+let isICCounting = false
+
+function handleIC() {
+    function endIC() {
+        ICLabel.textContent = "Intercycle Completed!";
+        clearInterval(iCInterval);
+        ICAudio.play();
+        ackBtn.disabled = false;
+        cycleMessage.close();
+        ICLabel.hidden = false;
+        HandleGlobalStopwatch();
+    }
+    ICLabel.hidden = false;
+    iCBtn.textContent = "Skip";
+    iCBtn.addEventListener('click', ()=> {
+        endIC();
+    })
+    clearInterval(globalIntervalID);
+    isCounting=false;
+    // Intercycle period display here
+    const render = () => {
+        const hour = String(Math.floor(remIC / 3600)).padStart(2, '0');
+        const minute = String(Math.floor((remIC % 3600) / 60)).padStart(2, '0');
+        const second = String(remIC % 60).padStart(2, '0');
+        ICLabel.textContent = `${hour}:${minute}:${second}`;
+    }
+    let remIC = 600;
+    if (!isICCounting) {
+        isICCounting = true;
+        iCInterval = setInterval(()=> {
+            render();
+            remIC--;
+            if (remIC<0) {
+                endIC();
+            } 
+        }, 50)
+    } else {
+        clearInterval(iCInterval);
+        isICCounting = false;
+    }
+}
+
+iCBtn.addEventListener('click', ()=> {
+    // TODO: Implement user settings for IC period + audio
+    handleIC();
+    ackBtn.disabled=true;
+});
 
 function HandleGlobalStopwatch() {
-
-    setInterval(() => {
+    if (isCounting) {
+        clearInterval(globalIntervalID);
+        isCounting = false;
+    } else {
+        globalIntervalID = setInterval(() => {
         secondsElapsed++;
         localStorage.setItem('secondsElapsed', String(secondsElapsed));
         renderTime();
@@ -41,27 +104,35 @@ function HandleGlobalStopwatch() {
         if (Math.floor((secondsElapsed % 3600) / 60)  % settings.cyclePeriod == 0 && secondsElapsed % 60 == 0) {
             console.log(`Cycle ${currentCycle} Completed!`);
 
-            const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
+
             const messageDisplay = document.getElementById('message-container') as HTMLDivElement;
-            const ackBtn = document.getElementById('ack-btn');
+
 
 
             messageDisplay.textContent = settings.cycleMessages[currentCycle];
             cycleMessage.showModal();
-            ackBtn?.addEventListener('click', ()=> {
+            ackBtn.addEventListener('click', ()=> {
                 cycleMessage.close();
             })
             alarm_audio.play();
+            
+
+
             currentCycle++;
             if (currentCycle == settings.cycleMessages.length) {
                 currentCycle = 0;
             }
-
         }
-    }, (1000));
+        }, 100);
+        isCounting = true;
+    }
 }
 
 HandleGlobalStopwatch();
+
+
+// TASK HANDLING
+
 
 let tasks: Task[] = [];
 
@@ -170,7 +241,17 @@ const form = document.getElementById(
 
 addTaskBtn.addEventListener('click', () => {
     dialog.showModal();
+    let cancel = document.getElementById('cancel-button');
+    cancel?.addEventListener('click', ()=> {
+        dialog.close();
+    })
 });
+
+const cancelTaskAdd = document.getElementById('cancel-task-add-btn');
+cancelTaskAdd?.addEventListener('click', ()=>{
+    dialog.close();
+    form.reset();
+})
 
 form.addEventListener('submit', async (event) => {
 
@@ -202,3 +283,4 @@ form.addEventListener('submit', async (event) => {
     dialog.close();
     form.reset();
 });
+

@@ -13,7 +13,13 @@ TASKS_FILE = str(Path(__file__).resolve().parent.parent / "data" / "tasks.json")
 PAGES_FOLDER = str(Path(__file__).resolve().parent.parent / "frontend" )
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 class Task(BaseModel):
@@ -73,4 +79,4 @@ def deleteTask(request: deleteTaskRequest):
         "message": "Task deleted successfully"
     }
 
-app.mount("/", StaticFiles(directory=PAGES_FOLDER, html=True), name="pages")
+#app.mount("/", StaticFiles(directory=PAGES_FOLDER, html=True), name="pages")
