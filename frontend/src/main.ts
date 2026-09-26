@@ -48,19 +48,19 @@ function handleIC() {
         clearInterval(iCInterval);
         ICAudio.play();
         ackBtn.disabled = false;
+        ackBtn.textContent = "Acknowledge"
         cycleMessage.close();
         ICLabel.textContent = "00:00:00";
         ICLabel.hidden = true;
-
-        isCounting = false;
         HandleGlobalStopwatch();
     }
+    ackBtn.disabled = true;
+    ackBtn.textContent = "----";
     ICLabel.hidden = false;
     iCBtn.textContent = "Skip";
     iCBtn.addEventListener('click', ()=> {
         endIC();
     })
-    HandleGlobalStopwatch();
     // Intercycle period display here
     const render = () => {
         const hour = String(Math.floor(remIC / 3600)).padStart(2, '0');
@@ -84,17 +84,13 @@ function handleIC() {
     }
 }
 
-iCBtn.addEventListener('click', ()=> {
-    // TODO: Implement user settings for IC period + audio
-    handleIC();
-    ackBtn.disabled=true;
-});
 
 function HandleGlobalStopwatch() {
     if (isCounting) {
         clearInterval(globalIntervalID);
         isCounting = false;
     } else {
+        isCounting = true;
         globalIntervalID = setInterval(() => {
         secondsElapsed++;
         localStorage.setItem('secondsElapsed', String(secondsElapsed));
@@ -113,9 +109,17 @@ function HandleGlobalStopwatch() {
 
             messageDisplay.textContent = settings.cycleMessages[currentCycle];
             cycleMessage.showModal();
+            clearInterval(globalIntervalID);
+            isCounting = false;
             ackBtn.addEventListener('click', ()=> {
                 cycleMessage.close();
+                HandleGlobalStopwatch()
             })
+            iCBtn.addEventListener('click', ()=> {
+                // TODO: Implement user settings for IC period + audio
+                handleIC();
+            });
+
             alarm_audio.play();
             
 
@@ -126,7 +130,7 @@ function HandleGlobalStopwatch() {
             }
         }
         }, 100);
-        isCounting = true;
+
     }
 }
 
