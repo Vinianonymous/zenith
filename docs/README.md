@@ -2,48 +2,80 @@
 
 > A simple, lightweight task manager built from scratch with TypeScript and Python.
 
-Zenith is a small full-stack task management application focused on learning and understanding how a frontend, HTTP API, backend, and persistent storage fit together.
+Zenith is a small full-stack task management application built as both a personal productivity tool and a learning project.
 
-## Why the name "Zenith"?
-In simple terms it means the highest point of something. For example, when I say the Sun is at it's Zenith, it is meant that the Sun is right above me, at it's highest percieved height.
-For me, Zenith is a tool for learning and also aiding me in providing a workflow I can function with, in other words, Zenith is a project that is meant to aid me in reaching my highest point, not only as a programmer but also as a person using it.
+The project focuses on understanding how a frontend, HTTP API, backend, and persistent storage fit together while building something I can actually use.
+
+## Why "Zenith"?
+
+**Zenith** refers to the highest point of something. For example, when the Sun is at its zenith, it is at its highest apparent position in the sky.
+
+For me, Zenith represents the same idea: a tool designed to help me work toward my highest point, both as a programmer and as a person.
+
+It is therefore not intended to be a generic productivity application. It is a tool built around my own workflow, experiences, and understanding of what helps me remain focused.
 
 ## Features
-### Global Stopwatch-based time tracking
-Zenith divides work sessions by *cycles*, which is the minimal block of time used for a unit of work. It can vary per person or energy level, inspired by Pomodoro basically.
-	For example I can set my cycle period to be 15 minutes for a quick session of adding comments.
-		Or maybe 30 for a deeper feature implementation?
-Once the cycle is over, a dialog appears with a prompt (The current *cycle message*, which you can also configure), reminding you to do something after the cycle, e.g: Stretch, drink water.
-You have the option to enter the *InterCycle Period*, which is basically a pause timer you set in seconds. This is dedicated for the execution of the cycle message prompt and extra stuff you might want. 
 
-### Quick task editing
-When you press the 'view info' button, you also have the option to directly change information for the task in the same dialog.
+### Global Stopwatch-Based Time Tracking
+
+Zenith divides work into **cycles**: configurable blocks of time dedicated to a unit of work.
+
+The duration can be adapted to the type of work being performed.
+
+For example:
+
+* **15 minutes** for a quick task such as adding comments.
+* **30 minutes** for deeper feature implementation.
+
+When a cycle ends, Zenith displays the configured **cycle message**, reminding you to perform an action such as stretching or drinking water.
+
+An optional **InterCycle Period** can also be configured. This provides a dedicated pause after each cycle for carrying out the cycle message and anything else that needs to happen before continuing.
+
+### Quick Task Editing
+
+The task information dialog also allows task information to be edited directly, without requiring a separate editing interface.
 
 ### Task Time Tracking
-When you click execute in a task, a stopwatch appears registering how much time you've spent on that task. This time is saved for future reference until the task is finished/deleted.
 
-### Data persistence
-#### JSON (Ephemeral)
-This project Currently uses JSON, managed by the Python Backend, to store the tasks. 
-The only reason for such is to make things easier for me to manage during these early stages.
-In the future, Zenith will boast a dedicated DB, however this is not in any of my priorities right now.
+Executing a task starts a stopwatch that records how much time has been spent working on it.
 
-##### LocalStorage (Possibly Ephemeral)
-For settings and the registere d Stopwatch time, Zenith stores then in localStorage, which means it is relative to the browser you use.
-This is a more native solution than the previously mentioned JSON, however due to plans of scaling for cross-platform data sync, localStorage may be replaced for another DB.
+The accumulated time remains associated with the task until it is completed or deleted.
 
+### Data Persistence
 
-### (Upcoming) Statistics page
-#### Value Metrics
-I've always believed that your performance is directly related to who you are. With this in mind, I have plans to integrate into Zenith a Radar Chart that represents your alignment to custom made metrics such as:
-- Faith
-- Socials
-- Self-Control
-And those metrics get a daily evaluation to compare over time, forming an average radar chart.
+#### JSON
 
-### (Upcoming) Goals page
-A simple goal tracker for each Quarter of the Year, for strategic thinking.
+Zenith currently uses JSON, managed by the Python backend, for task persistence.
 
+This is intentionally simple for the current stage of development. A dedicated database is planned eventually, but introducing one is not currently a priority.
+
+#### LocalStorage
+
+Settings and registered stopwatch time are currently stored in browser `localStorage`.
+
+This is convenient for the current architecture because the data is local to the browser.
+
+If Zenith eventually expands toward cross-platform synchronization, this storage model may be replaced by a database-backed solution.
+
+## Upcoming
+
+### Statistics
+
+Zenith will eventually include a statistics page based around custom **value metrics**.
+
+The idea is to track areas such as:
+
+* Faith
+* Social interaction
+* Self-control
+
+These metrics would be evaluated over time and visualized through a radar chart, allowing changes in the user's self-assessment to be observed across different periods.
+
+This is intended as a personal reflection mechanism rather than an objective measurement of a person's worth or performance.
+
+### Goals
+
+A goals page is planned around **quarterly goals**, providing a higher-level layer for strategic planning alongside Zenith's day-to-day task management.
 
 ## Tech Stack
 
@@ -57,14 +89,39 @@ A simple goal tracker for each Quarter of the Year, for strategic thinking.
 ### Backend
 
 * Python
-    * FastAPI
-    * Pydantic
-    * Uvicorn
+* FastAPI
+* Pydantic
+* Uvicorn
 
-## PS: 
-You might have noticed a lot of things in this project are not common to others, and that has a reason for it.
-*Zenith is meant to be my custom tool!*
-It is developed from the experience of years of improductivity and distraction. Across my experience I've learned what works for me, and how seeing time passing by actually aids me into a more focused state.
-This project *Might Not work for you!* Even though I've designed it to hard-code as less stuff as possible (Hence why the config page), maybe my methodology does NOT match your workflow!
-However, even if Zenith doesn't fulfill your needs for a task manager, I'd appreciate it if you shifted perspective from a task-manager to a learning project, so that you can engage with it better.
+### Current Architecture
 
+```text
+Frontend
+   │
+   │ HTTP
+   ▼
+FastAPI Backend
+   │
+   ▼
+JSON Storage
+```
+
+Browser-local settings and stopwatch state are currently handled separately through `localStorage`.
+
+## Philosophy
+
+Zenith is intentionally different from a conventional task manager.
+
+It was developed from my own experiences with productivity, distraction, and time management. One of the things I've found useful is having a visible representation of time passing while working.
+
+Because of that, Zenith is designed around my own methodology rather than trying to implement a universally applicable productivity system.
+
+**Zenith might not work for you.**
+
+Even though the application attempts to avoid hard-coding too much of my workflow through configurable settings, its underlying methodology is still personal.
+
+If Zenith does not fit your workflow as a task manager, I would instead encourage you to view it as what it also is:
+
+> **A learning project built around a real problem.**
+
+The goal is not simply to produce another task manager. The goal is to understand the engineering involved in building one while creating a tool that is genuinely useful to me.
