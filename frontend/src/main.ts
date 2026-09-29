@@ -5,6 +5,7 @@ import { loadSettings } from "./services/settings.js";
 const settings:Settings = loadSettings();
 
 // STOPWATCH HANDLING
+// PS. When available, please please please refactor this. It lacks order, beautiy, elegance, everything...
 let secondsElapsed = Number(localStorage.getItem('secondsElapsed')) ?? 0;
 function renderTime() {
     const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
