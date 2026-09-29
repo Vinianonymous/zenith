@@ -1,31 +1,31 @@
-import {Settings} from "../types/types.js"
+import { Settings } from "../types/types.js";
 
-export function loadSettings(){
-    const DEFAULTS: Settings = {
-        cycleAlarmPath:"../audio/alarm.mp3",
-        cyclePeriod:15,
-        tickingEnabled: false,
-        tickingSoundPath:"../audio/ticking.mp3",
-        cycleMessages: ["Stretch", "Pray"]
-    }
-    try {
-        const raw = localStorage.getItem('settings');
-        if (raw==null) return DEFAULTS;
-        const parsed = JSON.parse(raw);
-        console.log(parsed);
-        return parsed;
-
-    } catch (err) {
-        console.error("Something went wrong, go cry lol");
-        return DEFAULTS;
-    }
+export function loadSettings() {
+  const DEFAULTS: Settings = {
+    cycleAlarmPath: "../audio/alarm.mp3",
+    cyclePeriod: 15,
+    tickingEnabled: false,
+    tickingSoundPath: "../audio/ticking.mp3",
+    cycleMessages: ["Stretch", "Pray"],
+    ICPeriod: 600,
+  };
+  try {
+    const raw = localStorage.getItem("settings");
+    if (raw == null) return DEFAULTS;
+    const parsed = JSON.parse(raw);
+    console.log(parsed);
+    return parsed;
+  } catch (err) {
+    console.error("Something went wrong, go cry lol");
+    return DEFAULTS;
+  }
 }
 
-export function saveSettings(settings:Settings) {
-    try {
-        const raw = JSON.stringify(settings);
-        localStorage.setItem('settings', raw);
-    } catch (err) {
-        console.error("Error between Screen and Seat lol")
-    }
+export function saveSettings(settings: Settings) {
+  try {
+    const raw = JSON.stringify(settings);
+    localStorage.setItem("settings", raw);
+  } catch (err) {
+    console.error("Error between Screen and Seat lol");
+  }
 }

@@ -1,24 +1,22 @@
-
-
 export type Task = {
+  name: string;
 
-    name: string;
+  dueDate: string;
 
-    dueDate: string;
+  description: string;
 
-    description: string;
-
-    id: string;
-    timeSpent: number;
+  id: string;
+  timeSpent: number;
 };
 
 export type Settings = {
-    cyclePeriod: number;
-    cycleAlarmPath: string;
-    tickingEnabled:boolean;
-    tickingSoundPath:string;
-    cycleMessages:string[];
+  cyclePeriod: number;
+  cycleAlarmPath: string;
+  tickingEnabled: boolean;
+  tickingSoundPath: string;
+  cycleMessages: string[];
+  ICPeriod: number;
 };
 export type editTaskRequest = {
-    newData:Task
+  newData: Task;
 };

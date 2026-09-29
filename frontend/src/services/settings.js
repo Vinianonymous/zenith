@@ -4,10 +4,11 @@ export function loadSettings() {
         cyclePeriod: 15,
         tickingEnabled: false,
         tickingSoundPath: "../audio/ticking.mp3",
-        cycleMessages: ["Stretch", "Pray"]
+        cycleMessages: ["Stretch", "Pray"],
+        ICPeriod: 600,
     };
     try {
-        const raw = localStorage.getItem('settings');
+        const raw = localStorage.getItem("settings");
         if (raw == null)
             return DEFAULTS;
         const parsed = JSON.parse(raw);
@@ -22,7 +23,7 @@ export function loadSettings() {
 export function saveSettings(settings) {
     try {
         const raw = JSON.stringify(settings);
-        localStorage.setItem('settings', raw);
+        localStorage.setItem("settings", raw);
     }
     catch (err) {
         console.error("Error between Screen and Seat lol");

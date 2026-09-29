@@ -2,5 +2,12 @@
   "fiveServer.highlight": true,
   "fiveServer.ignore": [
     "**/data/**"
-  ]
+  ],
+  "background.editor": {
+    "useFront": true,
+    "images": [
+      "/home/vinny/Pictures/stars.jpg"
+    ]
+  }
+
 }

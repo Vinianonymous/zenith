@@ -1,293 +1,264 @@
-
-import {getTasks, addTask, deleteTask, editTask} from "./services/api.js";
-import { Task, Settings} from "./types/types.js";
+import { getTasks, addTask, deleteTask, editTask } from "./services/api.js";
+import { Task, Settings } from "./types/types.js";
 import { loadSettings } from "./services/settings.js";
-const settings:Settings = loadSettings();
+const settings: Settings = loadSettings();
 
 // STOPWATCH HANDLING
 // PS. When available, please please please refactor this. It lacks order, beautiy, elegance, everything...
-let secondsElapsed = Number(localStorage.getItem('secondsElapsed')) ?? 0;
+let secondsElapsed = Number(localStorage.getItem("secondsElapsed")) ?? 0;
 function renderTime() {
-    const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
-    const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
-    const second = String(secondsElapsed % 60).padStart(2, '0');
+  const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, "0");
+  const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, "0");
+  const second = String(secondsElapsed % 60).padStart(2, "0");
 
-    globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
+  globalStopwatchLabel.textContent = `${hour}:${minute}:${second}`;
 }
 
 const alarm_audio = new Audio(settings.cycleAlarmPath);
 const ticking_audio = new Audio(settings.tickingSoundPath);
 
-
-const globalStopwatchLabel = document.getElementById('stopwatch-text') as HTMLDivElement;
+const globalStopwatchLabel = document.getElementById("stopwatch-text") as HTMLDivElement;
 renderTime();
 
-
-const resetGlobalStopwatchBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+const resetGlobalStopwatchBtn = document.getElementById("reset-btn") as HTMLButtonElement;
 
 let isCounting = false;
 let globalIntervalID: ReturnType<typeof setInterval> | undefined;
 
-resetGlobalStopwatchBtn.addEventListener('click', ()=> {
-    secondsElapsed = 0;
-    localStorage.setItem('secondsElapsed', "0");
-    renderTime();
-})
+resetGlobalStopwatchBtn.addEventListener("click", () => {
+  secondsElapsed = 0;
+  localStorage.setItem("secondsElapsed", "0");
+  renderTime();
+});
 
-let currentCycle = (Math.floor(secondsElapsed / 3600) / 60) / settings.cyclePeriod;
-const ackBtn = document.getElementById('ack-btn') as HTMLButtonElement;
-const cycleMessage = document.getElementById('cycle-message-dialog') as HTMLDialogElement;
+let currentCycle = Math.floor(secondsElapsed / 3600) / 60 / settings.cyclePeriod;
+let remIC = settings.ICPeriod;
+const ackBtn = document.getElementById("ack-btn") as HTMLButtonElement;
+const cycleMessage = document.getElementById("cycle-message-dialog") as HTMLDialogElement;
 let iCInterval: ReturnType<typeof setInterval> | undefined;
-const iCBtn = document.getElementById('intercycle-btn') as HTMLButtonElement;
+const iCBtn = document.getElementById("intercycle-btn") as HTMLButtonElement;
 const ICAudio = new Audio("../audio/alarm.mp3");
-const ICLabel = document.getElementById('intercycle-time') as HTMLDivElement;
-let isICCounting = false
+const ICLabel = document.getElementById("intercycle-time") as HTMLDivElement;
+let isICCounting = false;
 
 function handleIC() {
-    function endIC() {
-        ICLabel.textContent = "Intercycle Completed!";
-        clearInterval(iCInterval);
-        ICAudio.play();
-        ackBtn.disabled = false;
-        ackBtn.textContent = "Acknowledge"
-        cycleMessage.close();
-        ICLabel.textContent = "00:00:00";
-        ICLabel.hidden = true;
-        HandleGlobalStopwatch();
-    }
-    ackBtn.disabled = true;
-    ackBtn.textContent = "----";
-    ICLabel.hidden = false;
-    iCBtn.textContent = "Skip";
-    iCBtn.addEventListener('click', ()=> {
+  function endIC() {
+    ICLabel.textContent = "Intercycle Completed!";
+    clearInterval(iCInterval);
+    ICAudio.play();
+    ackBtn.disabled = false;
+    ackBtn.textContent = "Acknowledge";
+    cycleMessage.close();
+    ICLabel.textContent = "00:00:00";
+    ICLabel.hidden = true;
+    HandleGlobalStopwatch();
+  }
+  ackBtn.disabled = true;
+  ackBtn.textContent = "----";
+  ICLabel.hidden = false;
+  iCBtn.textContent = "Skip";
+  iCBtn.addEventListener("click", () => {
+    endIC();
+  });
+  // Intercycle period display here
+  const render = () => {
+    const hour = String(Math.floor(remIC / 3600)).padStart(2, "0");
+    const minute = String(Math.floor((remIC % 3600) / 60)).padStart(2, "0");
+    const second = String(remIC % 60).padStart(2, "0");
+    ICLabel.textContent = `${hour}:${minute}:${second}`;
+  };
+  if (!isICCounting) {
+    isICCounting = true;
+    iCInterval = setInterval(() => {
+      render();
+      remIC--;
+      if (remIC < 0) {
         endIC();
-    })
-    // Intercycle period display here
-    const render = () => {
-        const hour = String(Math.floor(remIC / 3600)).padStart(2, '0');
-        const minute = String(Math.floor((remIC % 3600) / 60)).padStart(2, '0');
-        const second = String(remIC % 60).padStart(2, '0');
-        ICLabel.textContent = `${hour}:${minute}:${second}`;
-    }
-    let remIC = 600;
-    if (!isICCounting) {
-        isICCounting = true;
-        iCInterval = setInterval(()=> {
-            render();
-            remIC--;
-            if (remIC<0) {
-                endIC();
-            } 
-        }, 50)
-    } else {
-        clearInterval(iCInterval);
-        isICCounting = false;
-    }
+      }
+    }, 50);
+  } else {
+    clearInterval(iCInterval);
+    isICCounting = false;
+  }
 }
 
-
 function HandleGlobalStopwatch() {
-    if (isCounting) {
+  if (isCounting) {
+    clearInterval(globalIntervalID);
+    isCounting = false;
+  } else {
+    isCounting = true;
+    globalIntervalID = setInterval(() => {
+      secondsElapsed++;
+      localStorage.setItem("secondsElapsed", String(secondsElapsed));
+      renderTime();
+
+      if (settings.tickingEnabled) {
+        ticking_audio.play();
+      }
+      if (
+        Math.floor((secondsElapsed % 3600) / 60) % settings.cyclePeriod == 0 &&
+        secondsElapsed % 60 == 0
+      ) {
+        console.log(`Cycle ${currentCycle} Completed!`);
+
+        const messageDisplay = document.getElementById("message-container") as HTMLDivElement;
+
+        messageDisplay.textContent = settings.cycleMessages[currentCycle];
+        cycleMessage.showModal();
         clearInterval(globalIntervalID);
         isCounting = false;
-    } else {
-        isCounting = true;
-        globalIntervalID = setInterval(() => {
-        secondsElapsed++;
-        localStorage.setItem('secondsElapsed', String(secondsElapsed));
-        renderTime();
+        ackBtn.addEventListener("click", () => {
+          cycleMessage.close();
+          HandleGlobalStopwatch();
+        });
+        iCBtn.addEventListener("click", () => {
+          handleIC();
+        });
 
-        if (settings.tickingEnabled) {
-            ticking_audio.play();
+        alarm_audio.play();
+
+        currentCycle++;
+        if (currentCycle == settings.cycleMessages.length) {
+          currentCycle = 0;
         }
-        if (Math.floor((secondsElapsed % 3600) / 60)  % settings.cyclePeriod == 0 && secondsElapsed % 60 == 0) {
-            console.log(`Cycle ${currentCycle} Completed!`);
-
-
-            const messageDisplay = document.getElementById('message-container') as HTMLDivElement;
-
-
-
-            messageDisplay.textContent = settings.cycleMessages[currentCycle];
-            cycleMessage.showModal();
-            clearInterval(globalIntervalID);
-            isCounting = false;
-            ackBtn.addEventListener('click', ()=> {
-                cycleMessage.close();
-                HandleGlobalStopwatch()
-            })
-            iCBtn.addEventListener('click', ()=> {
-                // TODO: Implement user settings for IC period + audio
-                handleIC();
-            });
-
-            alarm_audio.play();
-            
-
-
-            currentCycle++;
-            if (currentCycle == settings.cycleMessages.length) {
-                currentCycle = 0;
-            }
-        }
-        }, 100);
-
-    }
+      }
+    }, 100);
+  }
 }
 
 HandleGlobalStopwatch();
 
-
 // TASK HANDLING
-
 
 let tasks: Task[] = [];
 
 async function loadTasks() {
-    tasks = await getTasks();
-    RenderTasks();
+  tasks = await getTasks();
+  RenderTasks();
 }
 
 loadTasks();
 
-const taskItems = document.getElementById('task-items') as HTMLDivElement;
+const taskItems = document.getElementById("task-items") as HTMLDivElement;
 
 function createTaskElement(task: Task): HTMLElement {
+  const taskItem = document.createElement("task-item") as HTMLElement;
+  taskItem.setAttribute("title", task.name);
+  taskItem.setAttribute("dueDate", task.dueDate);
+  taskItem.setAttribute("description", task.description);
 
-    const taskItem = document.createElement('task-item') as HTMLElement;
-    taskItem.setAttribute('title', task.name);
-    taskItem.setAttribute('dueDate', task.dueDate);
-    taskItem.setAttribute('description', task.description);
-
-    taskItem.setAttribute('id', task.id)
-    taskItem.setAttribute('timeSpent', String(task.timeSpent))
-    return taskItem;
+  taskItem.setAttribute("id", task.id);
+  taskItem.setAttribute("timeSpent", String(task.timeSpent));
+  return taskItem;
 }
 
 function RenderTasks() {
-
-    console.log(tasks);
-    taskItems.innerHTML = '';
-    tasks.forEach((task: Task) => {
-        taskItems.appendChild(createTaskElement(task));
-
-    });
+  console.log(tasks);
+  taskItems.innerHTML = "";
+  tasks.forEach((task: Task) => {
+    taskItems.appendChild(createTaskElement(task));
+  });
 }
 
-taskItems.addEventListener('task-delete', async (event: Event) => {
-    const customEvent = event as CustomEvent<{ id: string }>;
-    const id = customEvent.detail.id;
+taskItems.addEventListener("task-delete", async (event: Event) => {
+  const customEvent = event as CustomEvent<{ id: string }>;
+  const id = customEvent.detail.id;
 
-    const index = tasks.findIndex((task: Task) => task.id === id);
-    if (index === -1) {
-        return;
-    }
+  const index = tasks.findIndex((task: Task) => task.id === id);
+  if (index === -1) {
+    return;
+  }
 
-    const [removed] = tasks.splice(index, 1);
-    const element = taskItems.querySelector(`task-item[id="${id}"]`);
-    element?.remove();
+  const [removed] = tasks.splice(index, 1);
+  const element = taskItems.querySelector(`task-item[id="${id}"]`);
+  element?.remove();
 
-    try {
-
-        await deleteTask(id);
-    } catch (error) {
-
-        console.error('Failed to delete task, restoring it.', error);
-        tasks.splice(index, 0, removed);
-        RenderTasks();
-    }
+  try {
+    await deleteTask(id);
+  } catch (error) {
+    console.error("Failed to delete task, restoring it.", error);
+    tasks.splice(index, 0, removed);
+    RenderTasks();
+  }
 });
 
-taskItems.addEventListener('task-edition', async (event: Event) => {
-    const customEvent = event as CustomEvent<{ task: Task }>;
-    const editedTask = customEvent.detail.task;
+taskItems.addEventListener("task-edition", async (event: Event) => {
+  const customEvent = event as CustomEvent<{ task: Task }>;
+  const editedTask = customEvent.detail.task;
 
-    const index = tasks.findIndex(
-        (task: Task) => task.id === editedTask.id
-    );
+  const index = tasks.findIndex((task: Task) => task.id === editedTask.id);
 
-    if (index === -1) {
-        return;
-    }
+  if (index === -1) {
+    return;
+  }
 
-    const oldTask = tasks[index];
+  const oldTask = tasks[index];
 
-    tasks[index] = editedTask;
+  tasks[index] = editedTask;
 
-    try {
+  try {
+    await editTask({
+      newData: editedTask,
+    });
 
-        await editTask({
-            newData: editedTask
-        });
+    const oldElement = taskItems.querySelector(`task-item[id="${editedTask.id}"]`);
 
-        const oldElement = taskItems.querySelector(
-            `task-item[id="${editedTask.id}"]`
-        );
+    oldElement?.replaceWith(createTaskElement(editedTask));
+  } catch (error) {
+    console.error("Failed to edit task, restoring old task.", error);
 
-        oldElement?.replaceWith(createTaskElement(editedTask));
-
-    } catch (error) {
-        console.error('Failed to edit task, restoring old task.', error);
-
-        tasks[index] = oldTask;
-        RenderTasks();
-    }
+    tasks[index] = oldTask;
+    RenderTasks();
+  }
 });
 
-const addTaskBtn = document.getElementById(
-    'add-task-button'
-) as HTMLButtonElement;
+const addTaskBtn = document.getElementById("add-task-button") as HTMLButtonElement;
 
-const dialog = document.getElementById(
-    'add-task-dialog'
-) as HTMLDialogElement;
+const dialog = document.getElementById("add-task-dialog") as HTMLDialogElement;
 
-const form = document.getElementById(
-    'add-task-form'
-) as HTMLFormElement;
+const form = document.getElementById("add-task-form") as HTMLFormElement;
 
-addTaskBtn.addEventListener('click', () => {
-    dialog.showModal();
-    let cancel = document.getElementById('cancel-button');
-    cancel?.addEventListener('click', ()=> {
-        dialog.close();
-    })
-});
-
-const cancelTaskAdd = document.getElementById('cancel-task-add-btn');
-cancelTaskAdd?.addEventListener('click', ()=>{
+addTaskBtn.addEventListener("click", () => {
+  dialog.showModal();
+  let cancel = document.getElementById("cancel-button");
+  cancel?.addEventListener("click", () => {
     dialog.close();
-    form.reset();
-})
-
-form.addEventListener('submit', async (event) => {
-
-    event.preventDefault();
-
-    const formData = new FormData(form);
-
-    const task = {
-        name: formData.get('task-title') as string,
-        dueDate: formData.get('task-due-date') as string,
-        description: formData.get('task-description') as string,
-
-        id: crypto.randomUUID(),
-        timeSpent: 0
-    };
-
-    console.log(task);
-
-    try {
-        await addTask(task);
-    } catch (error) {
-        console.error('Failed to add task.', error);
-        return;
-    }
-
-    tasks.push(task);
-    taskItems.appendChild(createTaskElement(task));
-
-    dialog.close();
-    form.reset();
+  });
 });
 
+const cancelTaskAdd = document.getElementById("cancel-task-add-btn");
+cancelTaskAdd?.addEventListener("click", () => {
+  dialog.close();
+  form.reset();
+});
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(form);
+
+  const task = {
+    name: formData.get("task-title") as string,
+    dueDate: formData.get("task-due-date") as string,
+    description: formData.get("task-description") as string,
+
+    id: crypto.randomUUID(),
+    timeSpent: 0,
+  };
+
+  console.log(task);
+
+  try {
+    await addTask(task);
+  } catch (error) {
+    console.error("Failed to add task.", error);
+    return;
+  }
+
+  tasks.push(task);
+  taskItems.appendChild(createTaskElement(task));
+
+  dialog.close();
+  form.reset();
+});
