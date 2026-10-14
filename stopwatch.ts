@@ -6,11 +6,12 @@ export class Stopwatch extends HTMLElement {
   }
 
   connectedCallback(): void {
-    let secondsElapsed: number = Number(this.getAttribute("secondsElapsed"));
+    let secondsElapsed: number = 0;
+
     let isCounting: boolean = false;
     let interval: number;
 
-    this.innerHTML = `
+    this.shadow.innerHTML = `
     <div id="stopwatch-text">
       00:00:00
     </div>
@@ -18,15 +19,20 @@ export class Stopwatch extends HTMLElement {
     const label = this.shadow.getElementById("stopwatch-text") as HTMLDivElement;
 
     function start() {
-      return setInterval(() => {
-        secondsElapsed++;
-        const hour = String(Math.round(secondsElapsed / 3600)).padStart(2, "0");
-        const minute = String(Math.round(secondsElapsed / 60)).padStart(2, "0");
-        const second = String(Math.round(secondsElapsed / 3600 / 60)).padStart(2, "0");
-        label.textContent = `${hour}:${minute}:${second}`;
-      }, 1000);
+      if (!isCounting) {
+        const id = setInterval(() => {
+          secondsElapsed++;
+          const hour = String(Math.floor(secondsElapsed / 3600)).padStart(2, "0");
+          const minute = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, "0");
+          const second = String(secondsElapsed % 60).padStart(2, "0");
+          label.textContent = `${hour}:${minute}:${second}`;
+          return id;
+        }, 1000);
+      } else {
+        console.log("I guess the interval should be cleared?");
+      }
     }
-    interval = start();
+    start();
 
     function stop(id: number) {
       clearInterval(id);
