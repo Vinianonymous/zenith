@@ -1,11 +1,6 @@
-export class Stopwatch extends HTMLElement {
-  private shadow: ShadowRoot;
+export class Stopwatch {
   public secondsElapsed: number = 0;
   public isCounting: boolean = false;
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: "open" });
-  }
 
   // This basically exposes the function
   public start(label: HTMLDivElement) {
@@ -26,16 +21,4 @@ export class Stopwatch extends HTMLElement {
     this.isCounting = false;
     clearInterval(id);
   }
-
-  connectedCallback(): void {
-    this.shadow.innerHTML = `
-    <div id="stopwatch-text">
-      00:00:00
-    </div>
-    `;
-    const label = this.shadow.getElementById("stopwatch-text") as HTMLDivElement;
-    this.start(label);
-  }
 }
-
-customElements.define("stopwatch-element", Stopwatch);
