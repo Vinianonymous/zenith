@@ -11,8 +11,12 @@ class FileHandler:
 
     @classmethod
     def readData(cls, filename):
-        with open(filename, "r") as f:
-            return load(f)
+        try:
+            with open(filename, "r") as f:
+                return load(f)
+        except FileNotFoundError:
+            with open(filename, "w") as f:
+                return []
 
 
 taskList = FileHandler.readData("tasks.json")
