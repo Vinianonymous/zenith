@@ -5,7 +5,7 @@ class TaskElement extends HTMLElement {
         super();
         this.shadow = this.attachShadow({ mode: "open" });
     }
-    connecetedCallback() {
+    connectedCallback() {
         // Get data from attributes
         const title = this.getAttribute("title");
         const desc = this.getAttribute("desc");
@@ -20,3 +20,4 @@ class TaskElement extends HTMLElement {
     `;
     }
 }
+customElements.define('task-element', TaskElement);

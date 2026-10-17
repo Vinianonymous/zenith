@@ -7,7 +7,7 @@
     <link href="css/style.css" rel="stylesheet" />
   </head>
   <body>
-    <dialog id='add-task-button'>
+    <dialog id='add-task-dialog'>
       <h1>Add Task</h1>
       <form id="add-form">
         <label for="title">Title: </label>
@@ -16,6 +16,9 @@
         <textarea id="desc" name="desc"></textarea>
         <label for="due">Due:</label>
         <input type="date" id="due" name="due" />
+
+        <button type="submit">Add Task</button>
+        <button type="button" id="cancel-button">Cancel</button>
       </form>
     </dialog>
 

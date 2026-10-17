@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from json import dump, load, JSONDecodeError
+
 from pydantic import BaseModel
-from json import dump, load
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class FileHandler:
@@ -14,19 +17,27 @@ class FileHandler:
         try:
             with open(filename, "r") as f:
                 return load(f)
-        except Exception:
+        except (JSONDecodeError, FileNotFoundError):
             with open(filename, "w") as f:
+                dump([], f)
                 return []
 
 
 taskList = FileHandler.readData("tasks.json")
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Task(BaseModel):
     title: str
-    description: str
+    desc: str
     due: str
     id: str
     timeSpent: int
@@ -34,7 +45,9 @@ class Task(BaseModel):
 
 @app.get("/tasks")
 def getTasks():
-    return FileHandler.readData("tasks.json")
+    tasks = FileHandler.readData("tasks.json")
+
+    return tasks
 
 
 @app.post("/tasks")
@@ -42,7 +55,7 @@ def newTask(task: Task):
     raw = task.model_dump()
     tasks = getTasks()
     tasks.append(raw)
-    FileHandler.writeData(taskList, "tasks.json")
+    FileHandler.writeData(tasks, "tasks.json")
 
 
 @app.delete("/tasks")

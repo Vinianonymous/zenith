@@ -7,6 +7,7 @@ globalSBackend.start(globalStopwatchLabel);
 import { getTasks, newTask } from "./api.js";
 import "./task.js";
 const addTaskBtn = document.getElementById("add-task-button");
+const addTaskDialog = document.getElementById("add-task-dialog");
 const taskList = document.getElementById("task-list");
 let tasks = [];
 async function loadTasks() {
@@ -14,7 +15,7 @@ async function loadTasks() {
 }
 loadTasks();
 function createTaskElement(task) {
-    const element = document.createElement("task");
+    const element = document.createElement("task-element");
     element.setAttribute("title", task.title);
     element.setAttribute("desc", task.desc);
     element.setAttribute("due", task.due);
@@ -23,35 +24,41 @@ function createTaskElement(task) {
     return element;
 }
 function renderTasks() {
+    console.log("Rendering Tasks!");
     taskList.innerHTML = "";
     tasks.forEach((task) => {
+        console.log(task);
         const ele = createTaskElement(task);
         taskList.appendChild(ele);
     });
 }
 renderTasks();
+addTaskBtn.addEventListener("click", () => {
+    console.log("the event listener is working!");
+    addTaskDialog.showModal();
+});
 const formE = document.getElementById("add-form");
-addTaskBtn.addEventListener("click", async () => {
-    const dialog = document.createElement("add-task-dialog");
-    dialog.addEventListener("submit", async () => {
-        // Extract inputs
-        const form = new FormData(formE);
-        const title = form.get("title");
-        const due = form.get("due");
-        const desc = form.get("desc");
-        const task = {
-            title: title,
-            desc: desc,
-            due: due,
-            id: crypto.randomUUID(),
-            timeSpent: 0,
-        };
-        try {
-            await newTask(task);
-        }
-        catch (error) {
-            console.log(`error: ${error}`);
-        }
-        taskList.appendChild(createTaskElement(task));
-    });
+formE.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    // Extract inputs
+    const form = new FormData(formE);
+    const title = form.get("title");
+    const due = form.get("due");
+    const desc = form.get("desc");
+    const task = {
+        title: title,
+        desc: desc,
+        due: due,
+        id: crypto.randomUUID(),
+        timeSpent: 0,
+    };
+    try {
+        await newTask(task);
+    }
+    catch (error) {
+        console.log(`error: ${error}`);
+    }
+    taskList.appendChild(createTaskElement(task));
+    addTaskDialog.close();
+    formE.reset();
 });
