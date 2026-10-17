@@ -2,7 +2,7 @@ const apiURL = "http://localhost:8000/";
 
 export type Task = {
   title: string;
-  description: string;
+  desc: string;
   due: string;
   id: string;
   timeSpent: number;

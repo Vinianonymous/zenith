@@ -14,7 +14,7 @@ class FileHandler:
         try:
             with open(filename, "r") as f:
                 return load(f)
-        except FileNotFoundError:
+        except Exception:
             with open(filename, "w") as f:
                 return []
 
