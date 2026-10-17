@@ -11,9 +11,9 @@ const addTaskDialog = document.getElementById("add-task-dialog");
 const taskList = document.getElementById("task-list");
 let tasks = [];
 async function loadTasks() {
-    tasks = await getTasks();
+    return await getTasks();
 }
-loadTasks();
+tasks = await loadTasks();
 function createTaskElement(task) {
     const element = document.createElement("task-element");
     element.setAttribute("title", task.title);
@@ -23,16 +23,15 @@ function createTaskElement(task) {
     element.setAttribute("id", task.id);
     return element;
 }
-function renderTasks() {
+function renderTasks(tasks) {
     console.log("Rendering Tasks!");
     taskList.innerHTML = "";
     tasks.forEach((task) => {
-        console.log(task);
         const ele = createTaskElement(task);
         taskList.appendChild(ele);
     });
 }
-renderTasks();
+renderTasks(tasks);
 addTaskBtn.addEventListener("click", () => {
     console.log("the event listener is working!");
     addTaskDialog.showModal();
@@ -54,11 +53,12 @@ formE.addEventListener("submit", async (event) => {
     };
     try {
         await newTask(task);
+        console.log("task added");
     }
     catch (error) {
         console.log(`error: ${error}`);
     }
-    taskList.appendChild(createTaskElement(task));
+    renderTasks(tasks);
     addTaskDialog.close();
     formE.reset();
 });

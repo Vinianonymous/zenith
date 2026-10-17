@@ -12,9 +12,9 @@ const addTaskDialog = document.getElementById("add-task-dialog") as HTMLDialogEl
 const taskList = document.getElementById("task-list") as HTMLDivElement;
 let tasks: Task[] = [];
 async function loadTasks() {
-  tasks = await getTasks();
+  return await getTasks();
 }
-loadTasks();
+tasks = await loadTasks();
 
 function createTaskElement(task: Task) {
   const element = document.createElement("task-element") as HTMLElement;
@@ -27,16 +27,15 @@ function createTaskElement(task: Task) {
   return element;
 }
 
-function renderTasks() {
-  console.log("Rendering Tasks!")
+function renderTasks(tasks: Task[]) {
+  console.log("Rendering Tasks!");
   taskList.innerHTML = "";
   tasks.forEach((task) => {
-    console.log(task);
     const ele = createTaskElement(task) as HTMLElement;
     taskList.appendChild(ele);
   });
 }
-renderTasks();
+renderTasks(tasks);
 
 addTaskBtn.addEventListener("click", () => {
   console.log("the event listener is working!");
@@ -61,10 +60,11 @@ formE.addEventListener("submit", async (event) => {
   };
   try {
     await newTask(task);
+    console.log("task added");
   } catch (error) {
     console.log(`error: ${error}`);
   }
-  taskList.appendChild(createTaskElement(task));
+  renderTasks(tasks);
   addTaskDialog.close();
   formE.reset();
 });

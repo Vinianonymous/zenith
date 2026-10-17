@@ -9,13 +9,7 @@ export type Task = {
 };
 
 export async function getTasks(): Promise<Task[]> {
-  const response = await fetch(apiURL + "tasks", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
+  const response = await fetch(apiURL + "tasks");
   return await response.json();
 }
 
@@ -29,4 +23,3 @@ export async function newTask(task: Task) {
   });
   return await response.json();
 }
-
