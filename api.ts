@@ -23,3 +23,15 @@ export async function newTask(task: Task) {
   });
   return await response.json();
 }
+
+export async function deleteTask(taskID: string) {
+  const response = await fetch(apiURL + "tasks", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(taskID),
+  });
+
+  return await response.json();
+}

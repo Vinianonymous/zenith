@@ -5,7 +5,7 @@ const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElem
 globalSBackend.start(globalStopwatchLabel);
 
 // TASK HANDLING
-import { getTasks, newTask, Task } from "./api.js";
+import { getTasks, newTask, Task, deleteTask } from "./api.js";
 import "./task.js";
 const addTaskBtn = document.getElementById("add-task-button") as HTMLButtonElement;
 const addTaskDialog = document.getElementById("add-task-dialog") as HTMLDialogElement;
@@ -23,7 +23,6 @@ function createTaskElement(task: Task) {
   element.setAttribute("due", task.due);
   element.setAttribute("timeSpent", String(task.timeSpent));
   element.setAttribute("id", task.id);
-
   return element;
 }
 
@@ -67,4 +66,8 @@ formE.addEventListener("submit", async (event) => {
   renderTasks(tasks);
   addTaskDialog.close();
   formE.reset();
+});
+
+document.addEventListener("task-delete", async (event) => {
+  console.log("task is being deleted :(");
 });

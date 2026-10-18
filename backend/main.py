@@ -58,8 +58,13 @@ def newTask(task: Task):
     FileHandler.writeData(tasks, "tasks.json")
 
 
+class TaskDel(BaseModel):
+    id: str
+
+
 @app.delete("/tasks")
-def deleteTask(taskID: str):
-    tasks = getTasks()
+def deleteTask(request: TaskDel):
+    taskID = request.model_dump()["id"]
+    tasks = FileHandler.readData("tasks.json")
     tasks = [task for task in tasks if task["id"] != taskID]
     FileHandler.writeData(tasks, "tasks.json")

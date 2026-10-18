@@ -62,3 +62,6 @@ formE.addEventListener("submit", async (event) => {
     addTaskDialog.close();
     formE.reset();
 });
+document.addEventListener("task-delete", async (event) => {
+    console.log("task is being deleted :(");
+});
