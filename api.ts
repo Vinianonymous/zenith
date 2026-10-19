@@ -25,12 +25,14 @@ export async function newTask(task: Task) {
 }
 
 export async function deleteTask(taskID: string) {
+  const tasks = await getTasks();
+  const task: Task = tasks.find((task) => task.id === taskID) as Task;
   const response = await fetch(apiURL + "tasks", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(taskID),
+    body: JSON.stringify(task),
   });
 
   return await response.json();

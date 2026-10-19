@@ -14,12 +14,14 @@ export async function newTask(task) {
     return await response.json();
 }
 export async function deleteTask(taskID) {
+    const tasks = await getTasks();
+    const task = tasks.find((task) => task.id === taskID);
     const response = await fetch(apiURL + "tasks", {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(taskID),
+        body: JSON.stringify(task),
     });
     return await response.json();
 }
