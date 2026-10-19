@@ -4,6 +4,9 @@ from pydantic import BaseModel
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
+
+TASK_FILE = Path(__file__).parent.parent / "data" / "tasks.json"
 
 
 class FileHandler:
@@ -13,7 +16,8 @@ class FileHandler:
             dump(data, f)
 
     @classmethod
-    def readData(cls, filename):
+    def readData(cls, file):
+        filename = file.absolute()
         try:
             with open(filename, "r") as f:
                 return load(f)
@@ -22,8 +26,6 @@ class FileHandler:
                 dump([], f)
                 return []
 
-
-taskList = FileHandler.readData("tasks.json")
 
 app = FastAPI()
 app.add_middleware(
@@ -45,7 +47,7 @@ class Task(BaseModel):
 
 @app.get("/tasks")
 def getTasks():
-    tasks = FileHandler.readData("tasks.json")
+    tasks = FileHandler.readData(TASK_FILE)
 
     return tasks
 
@@ -55,12 +57,12 @@ def newTask(task: Task):
     raw = task.model_dump()
     tasks = getTasks()
     tasks.append(raw)
-    FileHandler.writeData(tasks, "tasks.json")
+    FileHandler.writeData(tasks, TASK_FILE)
 
 
 @app.delete("/tasks")
 def deleteTask(task: Task):
     raw = task.model_dump()
-    tasks = FileHandler.readData("tasks.json")
+    tasks = FileHandler.readData(TASK_FILE)
     tasks = [task for task in tasks if task["id"] != raw["id"]]
-    FileHandler.writeData(tasks, "tasks.json")
+    FileHandler.writeData(tasks, TASK_FILE)
