@@ -37,3 +37,14 @@ export async function deleteTask(taskID: string) {
 
   return await response.json();
 }
+
+export async function updateTask(task: Task) {
+  const response = await fetch(apiURL + "tasks", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+  return await response.json();
+}

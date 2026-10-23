@@ -5,7 +5,7 @@ const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElem
 globalSBackend.start(globalStopwatchLabel);
 
 // TASK HANDLING
-import { getTasks, newTask, Task} from "./api.js";
+import { getTasks, newTask, Task } from "./api.js";
 import "./task.js";
 const addTaskBtn = document.getElementById("add-task-button") as HTMLButtonElement;
 const addTaskDialog = document.getElementById("add-task-dialog") as HTMLDialogElement;
@@ -38,18 +38,21 @@ renderTasks(tasks);
 
 addTaskBtn.addEventListener("click", () => {
   console.log("the event listener is working!");
+  const dueE = document.getElementById("due") as HTMLInputElement;
+  const today = new Date();
+  dueE.value = today.toISOString().split("T")[0];
   addTaskDialog.showModal();
 });
 
 const formE = document.getElementById("add-form") as HTMLFormElement;
-const cancelB = document.getElementById('cancel-button') as HTMLButtonElement;
-
+const cancelB = document.getElementById("cancel-button") as HTMLButtonElement;
+cancelB.addEventListener("click", () => {
+  addTaskDialog.close();
+  formE.reset();
+});
 
 formE.addEventListener("submit", async (event) => {
   event.preventDefault();
-
-  const dueE = document.getElementById('due') as HTMLInputElement;
-  dueE.valueAsDate = new Date();
 
   // Extract inputs
   const form = new FormData(formE);
@@ -72,13 +75,10 @@ formE.addEventListener("submit", async (event) => {
     console.log(`error: ${error}`);
   }
 
-
-
   renderTasks(tasks);
   addTaskDialog.close();
   formE.reset();
 });
-
 
 document.addEventListener("task-delete", async (event) => {
   renderTasks(tasks);

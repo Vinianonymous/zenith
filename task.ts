@@ -1,4 +1,4 @@
-import { deleteTask } from "./api.js";
+import { deleteTask, updateTask, Task } from "./api.js";
 
 class TaskElement extends HTMLElement {
   private shadow: ShadowRoot;
@@ -13,7 +13,7 @@ class TaskElement extends HTMLElement {
     const title = this.getAttribute("title");
     const desc = this.getAttribute("desc");
     const due = this.getAttribute("due");
-    const timeSpent = this.getAttribute("timeSpent");
+    const timeSpent = Number(this.getAttribute("timeSpent")) || 0;
     const id = this.getAttribute("id") as string;
 
     // Render Data From attributes
@@ -21,14 +21,15 @@ class TaskElement extends HTMLElement {
       <dialog id="task-dialog">
           <form id="edit-form"> 
             <label>Title: </label>
-            <input type="text" id="title" name="title"/>
+            <input type="text" id="title" name="title" value=${title}/>
             <br>
             <label>Description: </label>
             <textarea id="desc" name="desc">${desc}</textarea>
             <br>
             <label>Due: </label>
-            <input type="date" id="due" name="due"/>
+            <input type="date" id="due" name="due" value=${due}/>
             <br>
+            <p>Time Spent: ${timeSpent}/p>
             <p>ID: ${id}</p>
             <br>
             <button id="save-changes-btn">Save</button>
@@ -57,9 +58,25 @@ class TaskElement extends HTMLElement {
       document.dispatchEvent(deleteEvent);
     });
 
-    const form = this.shadow.getElementById('edit-form') as HTMLFormElement;
-    const editDialog = this.shadow.getElementById('task-dialog') as HTMLDialogElement;
+    const form = this.shadow.getElementById("edit-form") as HTMLFormElement;
+    const editDialog = this.shadow.getElementById("task-dialog") as HTMLDialogElement;
     const editButton = this.shadow.getElementById("task-edit-button") as HTMLButtonElement;
+    editButton.addEventListener("click", () => {
+      editDialog.showModal();
+      const formD = new FormData(form);
+      const newTask: Task = {
+        id: id,
+        title: formD.get("title") as string,
+        desc: formD.get("desc") as string,
+        due: formD.get("due") as string,
+        timeSpent: timeSpent,
+      };
+      try {
+        const response = updateTask(newTask);
+      } catch (error) {
+        console.log(`error: ${error}`);
+      }
+    });
   }
 }
 

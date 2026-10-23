@@ -34,22 +34,24 @@ function renderTasks(tasks) {
 renderTasks(tasks);
 addTaskBtn.addEventListener("click", () => {
     console.log("the event listener is working!");
+    const dueE = document.getElementById("due");
+    const today = new Date();
+    dueE.value = today.toISOString().split("T")[0];
     addTaskDialog.showModal();
 });
 const formE = document.getElementById("add-form");
-const cancelB = document.getElementById('cancel-button');
+const cancelB = document.getElementById("cancel-button");
+cancelB.addEventListener("click", () => {
+    addTaskDialog.close();
+    formE.reset();
+});
 formE.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const dueE = document.getElementById('due');
-    dueE.valueAsDate = new Date();
     // Extract inputs
     const form = new FormData(formE);
     const title = form.get("title");
     const due = form.get("due");
     const desc = form.get("desc");
-    console.log(title);
-    console.log(due);
-    console.log(desc);
     const task = {
         title: title,
         desc: desc,
