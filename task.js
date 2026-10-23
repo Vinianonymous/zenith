@@ -57,6 +57,9 @@ class TaskElement extends HTMLElement {
         const editButton = this.shadow.getElementById("task-edit-button");
         editButton.addEventListener("click", () => {
             editDialog.showModal();
+        });
+        form.addEventListener("submit", async (event) => {
+            editDialog.showModal();
             const formD = new FormData(form);
             const newTask = {
                 id: id,
@@ -71,6 +74,8 @@ class TaskElement extends HTMLElement {
             catch (error) {
                 console.log(`error: ${error}`);
             }
+            form.reset();
+            editDialog.close();
         });
     }
 }
