@@ -37,13 +37,19 @@ addTaskBtn.addEventListener("click", () => {
     addTaskDialog.showModal();
 });
 const formE = document.getElementById("add-form");
+const cancelB = document.getElementById('cancel-button');
 formE.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const dueE = document.getElementById('due');
+    dueE.valueAsDate = new Date();
     // Extract inputs
     const form = new FormData(formE);
     const title = form.get("title");
     const due = form.get("due");
     const desc = form.get("desc");
+    console.log(title);
+    console.log(due);
+    console.log(desc);
     const task = {
         title: title,
         desc: desc,
@@ -53,6 +59,7 @@ formE.addEventListener("submit", async (event) => {
     };
     try {
         await newTask(task);
+        console.log(task);
         console.log("task added");
     }
     catch (error) {

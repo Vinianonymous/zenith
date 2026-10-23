@@ -5,7 +5,7 @@ const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElem
 globalSBackend.start(globalStopwatchLabel);
 
 // TASK HANDLING
-import { getTasks, newTask, Task, deleteTask } from "./api.js";
+import { getTasks, newTask, Task} from "./api.js";
 import "./task.js";
 const addTaskBtn = document.getElementById("add-task-button") as HTMLButtonElement;
 const addTaskDialog = document.getElementById("add-task-dialog") as HTMLDialogElement;
@@ -42,8 +42,15 @@ addTaskBtn.addEventListener("click", () => {
 });
 
 const formE = document.getElementById("add-form") as HTMLFormElement;
+const cancelB = document.getElementById('cancel-button') as HTMLButtonElement;
+
+
 formE.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  const dueE = document.getElementById('due') as HTMLInputElement;
+  dueE.valueAsDate = new Date();
+
   // Extract inputs
   const form = new FormData(formE);
   const title = form.get("title") as string;
@@ -59,14 +66,19 @@ formE.addEventListener("submit", async (event) => {
   };
   try {
     await newTask(task);
+    console.log(task);
     console.log("task added");
   } catch (error) {
     console.log(`error: ${error}`);
   }
+
+
+
   renderTasks(tasks);
   addTaskDialog.close();
   formE.reset();
 });
+
 
 document.addEventListener("task-delete", async (event) => {
   renderTasks(tasks);

@@ -19,12 +19,21 @@ class TaskElement extends HTMLElement {
     // Render Data From attributes
     this.shadow.innerHTML = `
       <dialog id="task-dialog">
-          <label>Title: </label>
-          <input type="text" id="title" name="title" />
-          <label>Description: </label>
-          <textarea id="desc" name="desc"></textarea>
-          <label>Due: </label>
-          <input type="date" id="due" name="due"/>
+          <form id="edit-form"> 
+            <label>Title: </label>
+            <input type="text" id="title" name="title"/>
+            <br>
+            <label>Description: </label>
+            <textarea id="desc" name="desc">${desc}</textarea>
+            <br>
+            <label>Due: </label>
+            <input type="date" id="due" name="due"/>
+            <br>
+            <p>ID: ${id}</p>
+            <br>
+            <button id="save-changes-btn">Save</button>
+            <button id="cancel-changes-btn">Cancel</button>
+          </form>
       </dialog>
       <div id="task-card">
         <div>${title}</div>
@@ -48,11 +57,9 @@ class TaskElement extends HTMLElement {
       document.dispatchEvent(deleteEvent);
     });
 
+    const form = this.shadow.getElementById('edit-form') as HTMLFormElement;
+    const editDialog = this.shadow.getElementById('task-dialog') as HTMLDialogElement;
     const editButton = this.shadow.getElementById("task-edit-button") as HTMLButtonElement;
-    editButton.addEventListener("click", () => {
-      console.log("edit clicked");
-      //TODO: Implement task editing
-    });
   }
 }
 
