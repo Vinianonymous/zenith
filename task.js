@@ -12,24 +12,25 @@ class TaskElement extends HTMLElement {
         const due = this.getAttribute("due");
         const timeSpent = Number(this.getAttribute("timeSpent")) || 0;
         const id = this.getAttribute("id");
-        // Render Data From attributes
+        // Render Data From attributes;
+        const dueDate = new Date(due).toISOString().split("T")[0];
         this.shadow.innerHTML = `
       <dialog id="task-dialog">
           <form id="edit-form"> 
             <label>Title: </label>
-            <input type="text" id="title" name="title" value=${title}/>
+            <input type="text" id="title" name="title" value="${title}"/>
             <br>
             <label>Description: </label>
-            <textarea id="desc" name="desc">${desc}</textarea>
+            <textarea id="desc" name="desc">"${desc}"</textarea>
             <br>
             <label>Due: </label>
-            <input type="date" id="due" name="due" value=${due}/>
+            <input type="date" id="due" name="due" value="${dueDate}"/>
             <br>
-            <p>Time Spent: ${timeSpent}/p>
+            <p>Time Spent: ${timeSpent}</p>
             <p>ID: ${id}</p>
             <br>
-            <button id="save-changes-btn">Save</button>
-            <button id="cancel-changes-btn">Cancel</button>
+            <button id="save-changes-btn" type="submit">Save</button>
+            <button id="cancel-changes-btn" type="button">Cancel</button>
           </form>
       </dialog>
       <div id="task-card">
@@ -58,8 +59,13 @@ class TaskElement extends HTMLElement {
         editButton.addEventListener("click", () => {
             editDialog.showModal();
         });
+        const cancelButton = this.shadow.getElementById("cancel-changes-btn");
+        cancelButton.addEventListener("click", () => {
+            editDialog.close();
+            form.reset();
+        });
         form.addEventListener("submit", async (event) => {
-            editDialog.showModal();
+            event.preventDefault();
             const formD = new FormData(form);
             const newTask = {
                 id: id,
@@ -69,10 +75,10 @@ class TaskElement extends HTMLElement {
                 timeSpent: timeSpent,
             };
             try {
-                const response = updateTask(newTask);
+                await updateTask(newTask);
             }
             catch (error) {
-                console.log(`error: ${error}`);
+                console.error(error);
             }
             form.reset();
             editDialog.close();

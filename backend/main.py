@@ -71,10 +71,13 @@ def deleteTask(task: Task):
 @app.put("/tasks")
 def updateTask(NewTask: Task):
     raw = NewTask.model_dump()
+    print(raw)
     tasks = getTasks()
+    print(tasks)
     for task in tasks:
         if task["id"] == raw["id"]:
             task["title"] = raw["title"]
             task["desc"] = raw["desc"]
             task["due"] = raw["due"]
+    print(tasks)
     FileHandler.writeData(tasks, TASK_FILE)
