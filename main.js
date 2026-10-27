@@ -67,6 +67,7 @@ formE.addEventListener("submit", async (event) => {
     catch (error) {
         console.log(`error: ${error}`);
     }
+    tasks.push(task);
     renderTasks(tasks);
     addTaskDialog.close();
     formE.reset();

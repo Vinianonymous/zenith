@@ -6,26 +6,34 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
+import sqlite3
+
+conn = sqlite3.connect("tasks.db", check_same_thread=False)
+conn.row_factory = sqlite3.Row
+
+
+def createTaskTable():
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS taskList (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                due TEXT NOT NULL,
+                desc TEXT NOT NULL,
+                timeSpent INTEGER NOT NULL
+            )
+        """)
+
+
+def sampleData():
+    with conn:
+        cursor = conn.cursor()
+        task = ("abc", "hello", "2026-12-31", "Lame data", 123)
+        cursor.execute("INSERT INTO taskList VALUES (?, ?, ? ,?, ?)", task)
+
+
 TASK_FILE = Path(__file__).parent.parent / "data" / "tasks.json"
-
-
-class FileHandler:
-    @classmethod
-    def writeData(cls, data, filename):
-        with open(filename, "w") as f:
-            dump(data, f)
-
-    @classmethod
-    def readData(cls, file):
-        filename = file.absolute()
-        try:
-            with open(filename, "r") as f:
-                return load(f)
-        except (JSONDecodeError, FileNotFoundError):
-            with open(filename, "w") as f:
-                dump([], f)
-                return []
-
 
 app = FastAPI()
 app.add_middleware(
@@ -47,9 +55,17 @@ class Task(BaseModel):
 
 @app.get("/tasks")
 def getTasks():
-    tasks = FileHandler.readData(TASK_FILE)
+    try:
+        with conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, name, due, desc, timeSpent FROM taskList")
+            rows = cursor.fetchall()
+            taskList = [dict(row) for row in rows]
 
-    return tasks
+    except sqlite3.OperationalError:
+        createTaskTable()
+
+    return taskList
 
 
 @app.post("/tasks")

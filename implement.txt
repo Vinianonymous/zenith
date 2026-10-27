@@ -1,4 +1,4 @@
-ZENITH — MANDATORY REFACTOR / QUALITY CHECKLIST
+Z ENITH — MANDATORY REFACTOR / QUALITY CHECKLIST
 Audit date: 2026-10-24
 Scope: whole repository (frontend TS/JS, backend FastAPI, data files, repo setup, docs, tests).
 Status: audit only. Nothing below has been fixed by this document.
