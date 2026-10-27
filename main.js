@@ -4,7 +4,7 @@ const globalSBackend = new Stopwatch();
 const globalStopwatchLabel = document.getElementById("stopwatch");
 globalSBackend.start(globalStopwatchLabel);
 // TASK HANDLING
-import { getTasks, newTask, updateTask } from "./api.js";
+import { getTasks, newTask, updateTask, deleteTask } from "./api.js";
 import "./task.js";
 const addTaskBtn = document.getElementById("add-task-button");
 const addTaskDialog = document.getElementById("add-task-dialog");
@@ -72,9 +72,24 @@ formE.addEventListener("submit", async (event) => {
     formE.reset();
 });
 document.addEventListener("task-delete", async (event) => {
-    renderTasks(tasks);
+    const taskId = event.detail.taskId;
+    try {
+        await deleteTask(taskId);
+        tasks = await loadTasks();
+        renderTasks(tasks);
+    }
+    catch (error) {
+        console.error(error);
+    }
 });
 document.addEventListener("task-edit", async (event) => {
     const newTask = event.detail.newTask;
-    updateTask(newTask);
+    try {
+        await updateTask(newTask);
+        tasks = await loadTasks();
+        renderTasks(tasks);
+    }
+    catch (error) {
+        console.error(error);
+    }
 });

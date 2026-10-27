@@ -1,0 +1,359 @@
+ZENITH — MANDATORY REFACTOR / QUALITY CHECKLIST
+Audit date: 2026-10-24
+Scope: whole repository (frontend TS/JS, backend FastAPI, data files, repo setup, docs, tests).
+Status: audit only. Nothing below has been fixed by this document.
+
+Legend
+  P0 = broken behaviour, data loss, or security risk. Fix before any new feature.
+  P1 = structural problems that will keep causing bugs. Fix before expanding the app.
+  P2 = maintainability, tooling, and polish.
+
+Verified during this audit
+  - The backend PUT /tasks works. Tested against a scratch copy of the server: the
+    edited task was written to disk correctly.
+  - The live backend on :8000 answers GET /tasks normally.
+  - The "editing does not work" symptom is therefore frontend/UI state, not the API.
+
+Current state of the edit flow (commit 0c3a330)
+  Already done — do not regress:
+    - event.preventDefault() in the edit submit handler.
+    - Cancel is type="button" with a close handler.
+    - Save is type="submit".
+    - Title/due template attributes are quoted; malformed </p> fixed.
+    - The element awaits updateTask directly.
+  Still broken:
+    - After a successful save the card is not re-rendered, so the edit appears to do
+      nothing until a manual reload.
+    - The description is rendered wrapped in literal quotes and those quotes are saved
+      back, accumulating on every edit.
+    - There are two competing update paths: task.ts calls the API directly, while the
+      task-edit listener in main.ts is dead code (nothing dispatches task-edit anymore).
+    - The in-memory `tasks` array is never updated, so add/delete/edit re-renders are
+      stale or missing.
+
+
+=====================================================================
+1. P0 — CORRECTNESS / SECURITY
+=====================================================================
+
+[ ] 1.1 Saved edits never appear in the UI (main.ts:13, 29-37, 87-90; task.ts:75-93)
+    - task.ts successfully PUTs the task, then closes the dialog. It never updates the
+      host element's attributes and never tells the app to re-render.
+    - main.ts keeps a module-global `tasks` array that is never refreshed.
+    - The `task-edit` listener at main.ts:87-90 is dead code: task.ts no longer
+      dispatches `task-edit`, so this handler (and its `updateTask` import) can never run.
+    - Result: the backend has the new values, the screen still shows the old ones, and the
+      user reasonably concludes editing is broken.
+    - REQUIRED: pick ONE update path (the element emits an event; the app owns the API
+      call), update the `tasks` store from the response, and re-render. Do not keep a
+      dead parallel path.
+
+[ ] 1.2 Description gets literal quotes, and they accumulate (task.ts:28)
+    - Rendered as `<textarea ...>"${desc}"</textarea>`, so the form value becomes
+      `"Sampel"` instead of `Sampel`.
+    - On save those quote characters are sent to the API. Each edit adds another pair.
+    - REQUIRED: remove the quotes from the template and set the value via the DOM
+      property (`textarea.value = desc`).
+
+[ ] 1.3 Markup injection and attribute breakage (task.ts:21-45)
+    - `title`, `desc`, `due`, and `id` are interpolated into `innerHTML`.
+    - A title containing `"` closes the `value="..."` attribute; a description
+      containing `</textarea>` or any HTML injects markup; the card title at line 41 is
+      raw HTML.
+    - REQUIRED: stop building the element from an HTML string with untrusted data. Set
+      properties (`.value`, `.textContent`) after creating the nodes, or escape values.
+
+[ ] 1.4 Invalid or empty due date crashes the whole task element (task.ts:20)
+    - `new Date(due).toISOString()` throws RangeError ("Invalid time value") for an empty
+      or malformed `due`, aborting connectedCallback. The task then renders as nothing.
+    - Date-only strings are parsed as UTC and then re-serialized, which can shift the
+      displayed day for users behind UTC in some formats.
+    - REQUIRED: validate `due` before using it, treat it as a plain `YYYY-MM-DD` string,
+      and never let one bad task break rendering.
+
+[ ] 1.5 Duplicate/unsynchronised update paths (task.ts:87, main.ts:89)
+    - The element owns an API call; main.ts also imports `updateTask` for a listener that
+      never fires. `deleteTask` is likewise called from the element while main.ts reacts
+      to the event.
+    - REQUIRED: components should not talk to the API. Emit `task-save` / `task-delete`
+      with the payload, and keep all mutations in one app-level module.
+
+[ ] 1.6 Stale state for add and delete (main.ts:54-85)
+    - Add: POST succeeds but the task is never pushed into `tasks`, so it does not render
+      until reload (main.ts:70-78).
+    - Delete: task.ts fires `deleteTask(id)` without awaiting or handling errors, then
+      dispatches `task-delete`; main.ts ignores `event.detail.taskId` and re-renders the
+      unchanged array, so the deleted task stays on screen (main.ts:83-85, task.ts:47-60).
+    - REQUIRED: update `tasks` from the API result for add, filter it for delete, await
+      the request, and show an error if it fails. Do not remove from the UI before the
+      server confirms.
+
+[ ] 1.7 Stopwatch cannot be stopped and leaks its interval (stopwatch.ts:6-23)
+    - The interval id is returned from inside the callback (line 15), so `start()` returns
+      undefined and the id is lost.
+    - `stop(id)` has an inverted guard: `if (this.isCounting) return;` returns exactly
+      when there is something to stop, then clears an undefined id.
+    - Elapsed time is counted by incrementing a counter in setInterval, so it drifts when
+      the tab is throttled or the machine sleeps.
+    - REQUIRED: store the interval id on the instance, fix the guard, derive elapsed time
+      from timestamps, and add pause/reset plus cleanup.
+
+[ ] 1.8 CORS configuration is invalid and unsafe (backend/main.py:31-37)
+    - `allow_origins=["*"]` with `allow_credentials=True` is rejected by browsers per the
+      CORS spec and is a security anti-pattern.
+    - REQUIRED: keep `*` only with `allow_credentials=False` for local dev; pin explicit
+      origins for anything shared or deployed.
+
+[ ] 1.9 Corrupt task data is silently destroyed (backend/main.py:19-27)
+    - `readData` catches `JSONDecodeError` and overwrites the file with `[]`. One bad
+      write or manual edit erases every task. It also conflates "missing file" with
+      "invalid JSON" and assumes the parent directory exists.
+    - REQUIRED: never overwrite corrupt data. Separate missing vs corrupt handling, log
+      or raise on corrupt JSON, keep a backup, and create the directory explicitly.
+
+[ ] 1.10 Unlocked read-modify-write loses updates (backend/main.py:48-83)
+    - Every endpoint does read-all → mutate → write-all with no lock and no atomic write.
+      Concurrent requests can drop each other's changes; a crash mid-write truncates the
+      file.
+    - REQUIRED: at minimum guard mutations with a lock and write atomically
+      (temp file + os.replace). Longer term, move to SQLite.
+
+[ ] 1.11 Missing/dead frontend assets (index.html)
+    - Line 4 references `css/style.css`; there is no `css/` directory and no CSS at all.
+    - Lines 31-34 link to goals.html, statistics.html, settings.html, about.html — none
+      of these files exist.
+    - Line 33 has a broken tag: `<<a href="settings.html">Settings</a>`.
+    - Line 40 has a stray `</button>` and placeholder text "Tasks" that is wiped on the
+      first render.
+    - REQUIRED: fix the markup, remove or create the referenced pages, and add the
+      missing stylesheet (or drop the link).
+
+
+=====================================================================
+2. P1 — ARCHITECTURE / BUILD / LAYOUT
+=====================================================================
+
+[ ] 2.1 No build system or TypeScript configuration
+    - `.ts` sources and compiled `.js` outputs are both committed side by side.
+    - `index.html` loads `main.js`, which imports the other `.js` files.
+    - There is no package.json, no tsconfig.json, no bundler, no scripts. Editing `.ts`
+      does nothing until someone runs `tsc` by hand, and the output is checked in.
+    - REQUIRED: add Vite (or tsc + bundler), `strict: true`, and scripts for dev/build/
+      typecheck/lint/test. Stop committing build output.
+
+[ ] 2.2 No dependency manifests / not reproducible
+    - No package.json, no requirements.txt or pyproject.toml; versions come from whatever
+      is in `.venv`.
+    - REQUIRED: add both manifests with pinned versions and document the exact setup.
+
+[ ] 2.3 Flat, unstructured layout
+    - All frontend files are in the repo root, the backend is one script, and caches are
+      mixed in.
+    - REQUIRED: move to something like:
+        frontend/src/        (main.ts, api.ts, components/task.ts, lib/stopwatch.ts)
+        frontend/index.html
+        frontend/src/styles/
+        backend/app/         (main.py, models.py, storage.py, routes/tasks.py)
+        data/                (runtime data, gitignored)
+        tests/
+      Update imports and index.html accordingly.
+
+[ ] 2.4 Backend mixes every responsibility in one file (backend/main.py)
+    - Routes, CORS, the domain model, file persistence, and debug prints all live in one
+      module. `FileHandler.readData` even opens files for writing.
+    - REQUIRED: split into an app factory, models/schemas, a storage/repository layer,
+      and route modules. Routes depend on a storage interface, not on disk paths.
+
+[ ] 2.5 Duplicated domain model / no shared contract
+    - `Task` is defined separately in `api.ts` and `backend/main.py`. JSON uses camelCase
+      while Python conventions are snake_case; nothing enforces parity.
+    - REQUIRED: define one contract (FastAPI already publishes OpenAPI) and share or
+      generate the frontend type. Pick one casing convention and apply it.
+
+[ ] 2.6 API is non-RESTful and lossy
+    - PUT and DELETE both target the collection `/tasks` with a full body. DELETE even
+      fetches the whole list first just to find the object (api.ts:27-39).
+    - PUT copies only title/desc/due and silently ignores `timeSpent`
+      (backend/main.py:77-82). Any new field will be forgotten here.
+    - Success returns `null`; no 404 when the id does not exist; POST returns `null`
+      instead of the created task.
+    - REQUIRED:
+        POST   /api/v1/tasks        -> 201 + created task
+        GET    /api/v1/tasks        -> 200 + list
+        PUT    /api/v1/tasks/{id}   -> 200 + updated task, 404 if missing
+        DELETE /api/v1/tasks/{id}   -> 204, 404 if missing
+      Replace the whole record (or PATCH with `exclude_unset`) so fields cannot drift.
+
+[ ] 2.7 No validation beyond static types
+    - `due` is a plain string, `timeSpent` accepts negatives, title/description have no
+      limits, and `id` is trusted from the client.
+    - REQUIRED: use `datetime.date` for `due`, constrain lengths, reject negative time,
+      and generate ids server-side or validate UUIDs.
+
+[ ] 2.8 No frontend error handling or feedback
+    - Failures are `console.log` only (main.ts:74-76, task.ts:88-90). A failed load
+      crashes module evaluation because top-level await has no try/catch (main.ts:17).
+    - REQUIRED: check `response.ok` in api.ts, parse error bodies, surface errors in the
+      UI, and provide loading/empty states.
+
+[ ] 2.9 API client lacks configuration and robustness (api.ts)
+    - Hardcoded `http://localhost:8000/`, untyped responses, no `response.ok` checks, no
+      timeout/AbortController, no central error mapping, and `deleteTask` sends
+      `undefined` if the id is not found.
+    - REQUIRED: read the base URL from config/env, type every response, throw typed
+      errors, add timeouts, and funnel requests through one helper.
+
+[ ] 2.10 Task element uses stringly typed attributes (main.ts:19-27, task.ts:11-17)
+    - Data is passed through DOM string attributes; there is no `observedAttributes`, no
+      re-render on change, and no teardown. Escape/attribute bugs follow from this.
+    - REQUIRED: expose typed properties (e.g. `task: Task`), render from those, and add
+      `disconnectedCallback` cleanup. Consider whether a custom element is needed at all
+      versus a plain render function.
+
+[ ] 2.11 State management is implicit
+    - Fetch, cache, render, and mutations are tangled in main.ts around a mutable global,
+      with a dead event listener as a leftover.
+    - REQUIRED: a small store (tasks + loading/error), explicit actions (load/add/update/
+      delete), and a single render/subscription path.
+
+[ ] 2.12 Duplicate/unclear data files
+    - `backend/tasks.json` exists but is unused; the real file is `data/tasks.json`
+      (backend/main.py:9). `.gitignore` ignores `tasks.json` globally, and `data/` is
+      ignored entirely.
+    - REQUIRED: delete the unused file, define the storage path explicitly, and document
+      the data-directory policy.
+
+[ ] 2.13 The stopwatch is unrelated to tasks
+    - A global timer runs, but per-task `timeSpent` is never incremented or persisted.
+      The edit dialog shows it and cannot change it; PUT ignores it.
+    - REQUIRED: either remove the global stopwatch or bind it to an active task and
+      persist time through the API (including PUT/PATCH).
+
+
+=====================================================================
+3. P2 — REPO HYGIENE / PROCESS / TOOLING
+=====================================================================
+
+[ ] 3.1 Tracked generated files
+    - `__pycache__/main.cpython-314.pyc` is tracked even though `.gitignore` ignores it.
+      A stray root `__pycache__/` also exists.
+    - REQUIRED: `git rm --cached` the pyc, remove strays, keep caches untracked.
+
+[ ] 3.2 .gitignore is untracked and too broad
+    - `.gitignore` itself is not committed.
+    - The bare `tasks.json` rule hides any file of that name anywhere.
+    - REQUIRED: commit it, scope rules (e.g. `data/*.json`), and add node_modules/,
+      dist/, .env, editor/OS files.
+
+[ ] 3.3 Compiled JS committed alongside sources
+    - main.js, api.js, task.js, stopwatch.js are tracked next to their .ts sources. They
+      happen to match now, but there is no mechanism preventing drift.
+    - REQUIRED: remove build output from version control once 2.1 lands.
+
+[ ] 3.4 No tests of any kind
+    - No unit, integration, or end-to-end tests and no runner configured.
+    - REQUIRED: backend tests with FastAPI TestClient against a temp data file (get, add,
+      update, delete, missing id, corrupt file); frontend tests for the API client and
+      task element; one E2E smoke test for add/edit/delete.
+
+[ ] 3.5 No lint, format, or typecheck in CI
+    - No eslint/prettier, no ruff/black/mypy, no CI, no pre-commit hooks.
+    - REQUIRED: add them and run typecheck + lint + tests on push/PR.
+
+[ ] 3.6 README is empty
+    - One line: `# zenith`. No description, prerequisites, setup, run commands, API
+      overview, storage location, or architecture notes.
+    - REQUIRED: document how to install/run both halves, where data lives, and how to
+      test.
+
+[ ] 3.7 No run scripts or environment separation
+    - The frontend needs a static server, the backend is started by hand on :8000, and
+      the API URL is hardcoded. No dev/prod config, no .env.example.
+    - REQUIRED: add run scripts (npm scripts and/or Makefile), `.env.example`, and
+      separate dev/prod config; read the port and API base from config.
+
+[ ] 3.8 Debug leftovers and style inconsistency
+    - main.ts:2 is a corrupted comment fragment referencing a previous rewrite
+      (`... yourself.stopwatch") as HTMLDivElement);`).
+    - `console.log` debugging in main.ts/task.ts; `print()` debugging in
+      backend/main.py:74-82.
+    - Non-PEP8 camelCase functions and PascalCase arguments in Python (`getTasks`,
+      `newTask`, `deleteTask`, `NewTask`); mixed quotes/semicolons in TS.
+    - main.ts imports `updateTask` only for dead code (see 1.1).
+    - REQUIRED: remove dead code/comments, use structured logging, add ruff/black and
+      eslint/prettier, and rename for consistency.
+
+[ ] 3.9 Accessibility gaps
+    - Shadow-DOM labels are not associated with controls, the card is a plain div, the
+      dialog has no accessible name or focus management, and Escape/focus-restore
+      behaviour is unverified.
+    - REQUIRED: associate labels, name the dialog, trap and restore focus, and verify
+      keyboard-only use.
+
+[ ] 3.10 No graceful degradation
+    - If the backend is down the page throws during module evaluation or silently shows
+      nothing; no retry path.
+    - REQUIRED: render a clear error state with a retry action instead of throwing.
+
+[ ] 3.11 Poor commit history / no contribution rules
+    - Messages like "I honestly dont remember what I did" make regressions hard to trace.
+    - REQUIRED: descriptive or conventional commits; add a LICENSE and CONTRIBUTING.md if
+      others will contribute.
+
+[ ] 3.12 No basic metadata
+    - Only a title is set; no description, theme color, or favicon.
+    - REQUIRED: add basic metadata after the page structure is fixed.
+
+
+=====================================================================
+4. RECOMMENDED WORK ORDER
+=====================================================================
+
+Phase 1 — finish the edit flow and stop the bleeding (P0)
+  1.1  re-render after save; remove the dead task-edit path
+  1.2  remove literal quotes from the description
+  1.3  stop interpolating untrusted data into innerHTML
+  1.4  guard invalid due dates
+  1.5  one mutation path for save/delete
+  1.6  update state on add/delete
+  1.7  stopwatch stop/cleanup
+  1.8  CORS
+  1.9  corrupt-data overwrite
+  1.10 locked/atomic writes
+  1.11 invalid HTML, dead links, missing CSS
+
+Phase 2 — make it maintainable (P1)
+  2.1  build system + tsconfig (strict)
+  2.2  manifests and pinned deps
+  2.3  folder restructure
+  2.4  backend layering
+  2.5  shared API contract
+  2.6  REST endpoints + status codes
+  2.7  validation
+  2.8  frontend error handling
+  2.9  API client hardening
+  2.10 typed task element
+  2.11 state store
+  2.12 single data file
+  2.13 stopwatch/task time integration
+
+Phase 3 — keep it healthy (P2)
+  3.1-3.3 repo hygiene
+  3.4  tests
+  3.5  lint/format/typecheck + CI
+  3.6  README
+  3.7  run scripts + env
+  3.8  dead code + style
+  3.9  accessibility
+  3.10 graceful degradation
+  3.11 contribution rules
+  3.12 metadata
+
+Definition of done for Phase 1
+  - Editing title/desc/due updates the card immediately, persists across reload, and
+    never navigates the page.
+  - The description round-trips unchanged (no accumulating quotes).
+  - Cancel closes without submitting or navigating.
+  - Adding and deleting update the list immediately and reflect server success.
+  - A task containing spaces, quotes, HTML, or an empty due date renders and edits safely.
+  - No interval leaks; the stopwatch can be stopped and restarted.
