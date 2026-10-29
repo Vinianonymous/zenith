@@ -1,7 +1,8 @@
 export class Stopwatch {
   public secondsElapsed: number = 0;
   public isCounting: boolean = false;
-
+  public cyclePeriod: number = 15;
+  public cycleEnabled: boolean = false;
   // This basically exposes the function
   public start(label: HTMLDivElement) {
     if (this.isCounting) return;
@@ -12,6 +13,14 @@ export class Stopwatch {
       const minute = String(Math.floor((this.secondsElapsed % 3600) / 60)).padStart(2, "0");
       const second = String(this.secondsElapsed % 60).padStart(2, "0");
       label.textContent = `${hour}:${minute}:${second}`;
+      if (this.cyclePeriod * 60 == this.secondsElapsed && this.cycleEnabled) {
+        const cycleEvent = new CustomEvent("cycle", {
+          detail: {},
+          composed: true,
+          bubbles: true,
+        });
+        document.dispatchEvent(cycleEvent);
+      }
       return id;
     }, 1000);
   }

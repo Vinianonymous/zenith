@@ -90,3 +90,10 @@ def updateTask(NewTask: Task):
             (raw["title"], raw["desc"], raw["due"], raw["timeSpent"], raw["id"]),
         )
     return NewTask
+
+
+@app.get("/health")
+def hey():
+    print(
+        "I am working okay! Don't care about the frontend tho so might have to watch out for that!"
+    )

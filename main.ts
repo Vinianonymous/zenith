@@ -3,6 +3,11 @@ import { Stopwatch } from "./stopwatch.js";
 const globalSBackend = new Stopwatch();
 const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElement;
 globalSBackend.start(globalStopwatchLabel);
+let cycles: number = 0;
+document.addEventListener("cycle", () => {
+  cycles++;
+  console.log("A cycle has been completed!!1!");
+});
 
 // TASK HANDLING
 import { getTasks, newTask, Task, updateTask, deleteTask } from "./api.js";
