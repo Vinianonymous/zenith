@@ -1,5 +1,6 @@
 // Defaults used when no settings have been saved yet.
-class Settings {
+// I made the right choice by making a class. It can be serialized directly to save to localstorage.
+export class Settings {
   public cycleEnabled: boolean = false;
   public cyclePeriod: number = 15;
   public intercyclePeriod: number = 5;
@@ -22,10 +23,18 @@ function loadSettings(): Settings {
     const parsed = JSON.parse(saved) as Partial<Settings>;
     const settings = new Settings();
     if (typeof parsed.cycleEnabled === "boolean") settings.cycleEnabled = parsed.cycleEnabled;
-    if (typeof parsed.cyclePeriod === "number" && Number.isInteger(parsed.cyclePeriod) && parsed.cyclePeriod > 0) {
+    if (
+      typeof parsed.cyclePeriod === "number" &&
+      Number.isInteger(parsed.cyclePeriod) &&
+      parsed.cyclePeriod > 0
+    ) {
       settings.cyclePeriod = parsed.cyclePeriod;
     }
-    if (typeof parsed.intercyclePeriod === "number" && Number.isInteger(parsed.intercyclePeriod) && parsed.intercyclePeriod > 0) {
+    if (
+      typeof parsed.intercyclePeriod === "number" &&
+      Number.isInteger(parsed.intercyclePeriod) &&
+      parsed.intercyclePeriod > 0
+    ) {
       settings.intercyclePeriod = parsed.intercyclePeriod;
     }
     if (typeof parsed.alarmSound === "string") settings.alarmSound = parsed.alarmSound;

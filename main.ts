@@ -2,11 +2,31 @@ import { Stopwatch } from "./stopwatch.js";
 // From 1000 lines in the other version to just this... I'm happy to rewrite zenith myself.stopwatch") as HTMLDivElement);
 const globalSBackend = new Stopwatch();
 const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElement;
+const cycleDialog = document.getElementById("cycle-dialog") as HTMLDialogElement;
+const enterIC = document.getElementById("ic-btn") as HTMLButtonElement;
+const ack = document.getElementById("ack-btn") as HTMLButtonElement;
+// TODO: Implement settings loading so that we can start working without placeholders
+// I'm between using removeeventlistener and using a flag.
+enterIC.addEventListener("click", () => {
+  ack.remove();
+  enterIC.textContent = "Exit IC";
+  enterIC.removeEventListener("click");
+  enterIC.addEventListener("click", () => {
+    const icLabel = document.getElementById("ic-stopwatch") as HTMLParagraphElement;
+    icLabel.hidden = false;
+    // TODO: PENDING IMPLEMENTATION OF A TIMER. ELEMENT.
+  });
+});
+
+ack.addEventListener("click", () => {
+  cycleDialog.close();
+});
 globalSBackend.start(globalStopwatchLabel);
 let cycles: number = 0;
+
 document.addEventListener("cycle", () => {
+  cycleDialog.showModal();
   cycles++;
-  console.log("A cycle has been completed!!1!");
 });
 
 // TASK HANDLING
