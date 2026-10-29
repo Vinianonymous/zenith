@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zenith</title>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <dialog id="add-task-dialog">
+      <h1>Add Task</h1>
+      <form id="add-form">
+        <label for="title">Title: </label>
+        <input type="text" id="title" name="title" />
+        <br />
+        <label for="desc">Description:</label>
+        <textarea id="desc" name="desc"></textarea>
+        <br />
+        <label for="due">Due:</label>
+        <input type="date" id="due" name="due" />
+        <br />
+        <button type="submit">Add Task</button>
+        <button type="button" id="cancel-button">Cancel</button>
+      </form>
+    </dialog>
+
+    <header>
+      <h1>Zenith</h1>
+      <nav>
+        <a href="index.">Home</a>
+        <a href="goals.html">Goals</a>
+        <a href="statistics.html">Statistics</a>
+        <a class="actual">Settings</a>
+        <a href="about.html">About Zenith</a>
+      </nav>
+    </header>
+
+    <main>
+      <form id="settings">
+        <div>
+          <label for="cycle-enabled">Cycle Enabled</label>
+          <input type="checkbox" id="cycle-enabled" name="cycleEnabled" />
+        </div>
+        <div>
+          <label for="cycle-period">Cycle Period (minutes)</label>
+          <input type="number" id="cycle-period" name="cyclePeriod" min="1" step="1" />
+        </div>
+        <div>
+          <label for="intercycle-period">Intercycle Period (minutes)</label>
+          <input type="number" id="intercycle-period" name="intercyclePeriod" min="1" step="1" />
+        </div>
+        <div>
+          <label for="alarm-sound">Alarm sound (file path)</label>
+          <input type="text" id="alarm-sound" name="alarmSound" />
+        </div>
+        <button>Save</button>
+      </form>
+    </main>
+    <script type="module" src="settings.js"></script>
+    <footer></footer>
+  </body>
+</html>
