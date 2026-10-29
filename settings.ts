@@ -4,6 +4,7 @@ export class Settings {
   public cycleEnabled: boolean = false;
   public cyclePeriod: number = 15;
   public intercyclePeriod: number = 5;
+  public intercycleMessages: string[] = ["Pray", "Stretch", "Toggle Standing/Sitting work"];
   public alarmSound: string = "";
 }
 
@@ -13,6 +14,9 @@ const cycleEnabledInput = document.getElementById("cycle-enabled") as HTMLInputE
 const cyclePeriodInput = document.getElementById("cycle-period") as HTMLInputElement;
 const intercyclePeriodInput = document.getElementById("intercycle-period") as HTMLInputElement;
 const alarmSoundInput = document.getElementById("alarm-sound") as HTMLInputElement;
+const intercycleMessagesInput = document.getElementById(
+  "intercycle-messages",
+) as HTMLTextAreaElement;
 
 // Restore saved settings, falling back to defaults for missing or invalid values.
 function loadSettings(): Settings {
@@ -50,6 +54,12 @@ function showSettings(settings: Settings): void {
   cyclePeriodInput.value = String(settings.cyclePeriod);
   intercyclePeriodInput.value = String(settings.intercyclePeriod);
   alarmSoundInput.value = settings.alarmSound;
+
+  // TODO: I remember something had to be fixed in this thing because of the
+  // way text area elements treated newlines
+  intercycleMessagesInput.textContent = settings.intercycleMessages.forEach((message) => {
+    return message + "\n";
+  });
 }
 
 // Show saved values as soon as the settings page loads.
