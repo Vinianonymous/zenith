@@ -1,12 +1,53 @@
-import { Stopwatch } from "./stopwatch.js";
+// SETTINGS HANDLING
+import { loadSettings } from "./settings.js";
+const settings = loadSettings();
+import { Stopwatch, Timer } from "./stopwatch.js";
 // From 1000 lines in the other version to just this... I'm happy to rewrite zenith myself.stopwatch") as HTMLDivElement);
 const globalSBackend = new Stopwatch();
+globalSBackend.cycleEnabled = settings.cycleEnabled;
+globalSBackend.cyclePeriod = settings.cyclePeriod;
 const globalStopwatchLabel = document.getElementById("stopwatch");
-globalSBackend.start(globalStopwatchLabel);
+const cycleDialog = document.getElementById("cycle-dialog");
+const enterIC = document.getElementById("ic-btn");
+let countingIC = false;
+let inIC = false;
+const timer = new Timer();
+timer.secondsRemaining = settings.intercyclePeriod * 60;
+const timerL = document.getElementById("ic-timer");
+enterIC.addEventListener("click", () => {
+    timerL.hidden = false;
+    ack.textContent = "exit IC";
+    if (globalSBackend.isCounting)
+        globalSBackend.toggle(globalStopwatchLabel);
+    if (!countingIC) {
+        countingIC = true;
+        timer.toggleCounting(timerL);
+        enterIC.textContent = "Pause";
+    }
+    else {
+        enterIC.textContent = "Resume";
+        countingIC = false;
+        timer.toggleCounting(timerL);
+    }
+});
+const ack = document.getElementById("ack-btn");
+ack.addEventListener("click", () => {
+    cycleDialog.close();
+    timerL.hidden = true;
+    if (timer.isCounting)
+        timer.toggleCounting(timerL);
+    timer.secondsRemaining = settings.intercyclePeriod * 60;
+    globalSBackend.toggle(globalStopwatchLabel);
+    countingIC = false;
+    ack.textContent = "Acknowledge";
+    enterIC.textContent = "Enter Intercycle";
+});
+globalSBackend.toggle(globalStopwatchLabel);
 let cycles = 0;
 document.addEventListener("cycle", () => {
+    globalSBackend.toggle(globalStopwatchLabel);
+    cycleDialog.showModal();
     cycles++;
-    console.log("A cycle has been completed!!1!");
 });
 // TASK HANDLING
 import { getTasks, newTask, updateTask, deleteTask } from "./api.js";
