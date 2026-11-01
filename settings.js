@@ -30,6 +30,10 @@ export function loadSettings() {
         }
         if (typeof parsed.alarmSound === "string")
             settings.alarmSound = parsed.alarmSound;
+        if (Array.isArray(parsed.intercycleMessages) &&
+            parsed.intercycleMessages.every((m) => typeof m === "string")) {
+            settings.intercycleMessages = parsed.intercycleMessages;
+        }
         return settings;
     }
     catch {

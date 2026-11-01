@@ -30,6 +30,7 @@ enterIC.addEventListener("click", () => {
         timer.toggleCounting(timerL);
     }
 });
+const messageE = document.getElementById("cycle-message");
 const ack = document.getElementById("ack-btn");
 ack.addEventListener("click", () => {
     cycleDialog.close();
@@ -46,8 +47,12 @@ globalSBackend.toggle(globalStopwatchLabel);
 let cycles = 0;
 document.addEventListener("cycle", () => {
     globalSBackend.toggle(globalStopwatchLabel);
+    const messages = settings.intercycleMessages.length
+        ? settings.intercycleMessages
+        : ["No messsages Set up!"];
+    messageE.textContent = messages[cycles % messages.length];
+    cycles = (cycles + 1) % messages.length;
     cycleDialog.showModal();
-    cycles++;
 });
 // TASK HANDLING
 import { getTasks, newTask, updateTask, deleteTask } from "./api.js";

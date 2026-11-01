@@ -4,20 +4,14 @@ const cycleEnabledInput = document.getElementById("cycle-enabled");
 const cyclePeriodInput = document.getElementById("cycle-period");
 const intercyclePeriodInput = document.getElementById("intercycle-period");
 const alarmSoundInput = document.getElementById("alarm-sound");
-//const intercycleMessagesInput = document.getElementById(
-//  "intercycle-messages",
-//) as HTMLTextAreaElement;
+const intercycleMessagesInput = document.getElementById("intercycle-messages");
 // Populate the form from the current settings.
 function showSettings(settings) {
     cycleEnabledInput.checked = settings.cycleEnabled;
     cyclePeriodInput.value = String(settings.cyclePeriod);
     intercyclePeriodInput.value = String(settings.intercyclePeriod);
     alarmSoundInput.value = settings.alarmSound;
-    // TODO: I remember something had to be fixed in this thing because of the
-    // way text area elements treated newlines
-    //intercycleMessagesInput.textContent = settings.intercycleMessages.forEach((message) => {
-    //  return message + "\n";
-    //});
+    intercycleMessagesInput.value = settings.intercycleMessages.join("\n");
 }
 // Show saved values as soon as the settings page loads.
 showSettings(loadSettings());
@@ -43,6 +37,9 @@ form.addEventListener("submit", (event) => {
     settings.cyclePeriod = cyclePeriod;
     settings.intercyclePeriod = intercyclePeriod;
     settings.alarmSound = alarmSoundInput.value;
+    settings.intercycleMessages = intercycleMessagesInput.value
+        .split("\n")
+        .filter((m) => m.trim() !== "");
     // Persist all four fields and reflect the stored values in the form.
     localStorage.setItem("settings", JSON.stringify(settings));
     showSettings(loadSettings());
