@@ -6,19 +6,19 @@
     <title>Zenith</title>
     <link href="css/style.css" rel="stylesheet" />
   </head>
-    <body>
-    <dialog id='add-task-dialog'>
+  <body>
+    <dialog id="add-task-dialog">
       <h1>Add Task</h1>
       <form id="add-form">
         <label for="title">Title: </label>
         <input type="text" id="title" name="title" />
-        <br>
+        <br />
         <label for="desc">Description:</label>
         <textarea id="desc" name="desc"></textarea>
-        <br>
+        <br />
         <label for="due">Due:</label>
         <input type="date" id="due" name="due" />
-        <br>
+        <br />
         <button type="submit">Add Task</button>
         <button type="button" id="cancel-button">Cancel</button>
       </form>
@@ -26,11 +26,14 @@
 
     <dialog id="cycle-dialog">
       <h1>Cycle Successfully completed!</h1>
-      <div id="ic-timer" hidden='true'></div>
+      <div id="ic-timer" hidden="true"></div>
       <p id="cycle-message">Pray (PLACEHOLDER)</p>
 
-      <button id="ic-btn">Enter Intercycle</button> <button id="ack-btn">Acknowledge</button>
+      <button id="ic-btn">Enter Intercycle</button>
+      <button id="ack-btn">Acknowledge</button>
     </dialog>
+
+    <!--TODO: IMplement execution dialog-->
 
     <header>
       <h1>Zenith</h1>
@@ -38,14 +41,15 @@
         <a class="actual">Home</a>
         <a href="goals.html">Goals</a>
         <a href="statistics.html">Statistics</a>
-        <<a href="settings.html">Settings</a>
+        <a href="settings.html">Settings</a>
         <a href="about.html">About Zenith</a>
       </nav>
     </header>
 
-      <div id="stopwatch">00:00:00</div>
-      <hr>
-      <div id="task-list">Tasks</div> <button id="add-task-button">Add Task</button> </button> 
+    <div id="stopwatch">00:00:00</div>
+    <hr />
+    <div id="task-list">Tasks</div>
+    <button id="add-task-button">Add Task</button>
     <script type="module" src="main.js"></script>
     <footer></footer>
   </body>

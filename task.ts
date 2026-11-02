@@ -19,6 +19,7 @@ class TaskElement extends HTMLElement {
     // Render Data From attributes;
     const dueDate = new Date(due).toISOString().split("T")[0];
     this.shadow.innerHTML = `
+      <link rel="stylesheet" href="css/style.css" />
       <dialog id="task-dialog">
           <form id="edit-form"> 
             <label>Title: </label>
@@ -39,6 +40,7 @@ class TaskElement extends HTMLElement {
       </dialog>
       <div id="task-card">
         <div>${title}</div>
+        <button id="task-exec">Execute Task</button>
         <button id="task-edit-button">More Info</button>
         <button id="delete-button">Delete</button>
       </div>
@@ -75,6 +77,19 @@ class TaskElement extends HTMLElement {
     const editButton = this.shadow.getElementById("task-edit-button") as HTMLButtonElement;
     editButton.addEventListener("click", () => {
       editDialog.showModal();
+    });
+
+    const taskExec = document.getElementById("task-exec") as HTMLButtonElement;
+    taskExec.addEventListener("click", () => {
+      console.log("Execution Triggered!>:)");
+      const execEvent = new CustomEvent("task-exec", {
+        detail: {
+          taskId: id,
+        },
+        bubbles: true,
+        composed: true,
+      });
+      document.dispatchEvent(execEvent);
     });
 
     const cancelButton = this.shadow.getElementById("cancel-changes-btn") as HTMLButtonElement;

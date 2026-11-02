@@ -157,3 +157,8 @@ document.addEventListener("task-edit", async (event: Event) => {
     console.error(error);
   }
 });
+
+//TODO: get finish and cancel button
+document.addEventListener("task-exec", (event: Event) => {
+  //TODO:  Show execution dialog
+});

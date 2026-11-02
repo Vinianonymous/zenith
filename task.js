@@ -14,6 +14,7 @@ class TaskElement extends HTMLElement {
         // Render Data From attributes;
         const dueDate = new Date(due).toISOString().split("T")[0];
         this.shadow.innerHTML = `
+      <link rel="stylesheet" href="css/style.css" />
       <dialog id="task-dialog">
           <form id="edit-form"> 
             <label>Title: </label>
