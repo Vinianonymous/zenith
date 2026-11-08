@@ -59,6 +59,14 @@ document.addEventListener("cycle", () => {
 
   cycleDialog.showModal();
 });
+
+document.addEventListener("task-exec-init", () => {
+  if (globalSBackend.isCounting) globalSBackend.toggle(globalStopwatchLabel);
+});
+document.addEventListener("task-exec-finish", () => {
+  if (!globalSBackend.isCounting) globalSBackend.toggle(globalStopwatchLabel);
+});
+
 // TASK HANDLING
 import { getTasks, newTask, Task, updateTask, deleteTask } from "./api.js";
 import "./task.js";
@@ -158,7 +166,11 @@ document.addEventListener("task-edit", async (event: Event) => {
   }
 });
 
-//TODO: get finish and cancel button
 document.addEventListener("task-exec", (event: Event) => {
-  //TODO:  Show execution dialog
+  const taskId = (event as CustomEvent).detail.taskId;
+  const shadow = document.getElementById(taskId)?.shadowRoot;
+  const dialog = shadow?.getElementById("exec-diag") as HTMLDialogElement;
+  const finish = shadow?.getElementById("exec-finish") as HTMLButtonElement;
+  const cancel = shadow?.getElementById("exec-cancel") as HTMLButtonElement;
+  if (dialog && finish && cancel && !dialog.open) dialog.showModal();
 });

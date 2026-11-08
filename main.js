@@ -54,6 +54,14 @@ document.addEventListener("cycle", () => {
     cycles = (cycles + 1) % messages.length;
     cycleDialog.showModal();
 });
+document.addEventListener("task-exec-init", () => {
+    if (globalSBackend.isCounting)
+        globalSBackend.toggle(globalStopwatchLabel);
+});
+document.addEventListener("task-exec-finish", () => {
+    if (!globalSBackend.isCounting)
+        globalSBackend.toggle(globalStopwatchLabel);
+});
 // TASK HANDLING
 import { getTasks, newTask, updateTask, deleteTask } from "./api.js";
 import "./task.js";
@@ -144,4 +152,13 @@ document.addEventListener("task-edit", async (event) => {
     catch (error) {
         console.error(error);
     }
+});
+document.addEventListener("task-exec", (event) => {
+    const taskId = event.detail.taskId;
+    const shadow = document.getElementById(taskId)?.shadowRoot;
+    const dialog = shadow?.getElementById("exec-diag");
+    const finish = shadow?.getElementById("exec-finish");
+    const cancel = shadow?.getElementById("exec-cancel");
+    if (dialog && finish && cancel && !dialog.open)
+        dialog.showModal();
 });

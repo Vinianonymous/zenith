@@ -1,4 +1,5 @@
 import { deleteTask, Task, updateTask } from "./api.js";
+import { Stopwatch } from "./stopwatch.js";
 
 class TaskElement extends HTMLElement {
   private shadow: ShadowRoot;
@@ -13,7 +14,7 @@ class TaskElement extends HTMLElement {
     const title = (this.getAttribute("title") as string) || "Unnamed!";
     const desc = (this.getAttribute("desc") as string) || "No need for explanations";
     const due = (this.getAttribute("due") as string) || "2026-10-01";
-    const timeSpent = Number(this.getAttribute("timeSpent")) || 0;
+    let timeSpent = Number(this.getAttribute("timeSpent")) || 0;
     const id = (this.getAttribute("id") as string) || "DANGER: NO ID";
 
     // Render Data From attributes;
@@ -38,6 +39,12 @@ class TaskElement extends HTMLElement {
             <button id="cancel-changes-btn" type="button">Cancel</button>
           </form>
       </dialog>
+
+      <dialog id="exec-diag">
+        <div id="exec-stopwatch">00:00:00</div>
+        <button id="exec-cancel">Cancel</button>
+        <button id="exec-finish">Finish execution</button>
+      </dialog>      
       <div id="task-card">
         <div>${title}</div>
         <button id="task-exec">Execute Task</button>
@@ -45,6 +52,55 @@ class TaskElement extends HTMLElement {
         <button id="delete-button">Delete</button>
       </div>
     `;
+
+    // Task execution
+    const execDiag = this.shadow.getElementById("exec-diag") as HTMLDialogElement;
+    const execButton = this.shadow.getElementById("task-exec") as HTMLButtonElement;
+    const finish = this.shadow.getElementById("exec-finish") as HTMLButtonElement;
+    const quitExec = this.shadow.getElementById("exec-cancel") as HTMLButtonElement;
+    const stopwatchL = this.shadow.getElementById("exec-stopwatch") as HTMLDivElement;
+    const stopwatch = new Stopwatch();
+
+    execButton.addEventListener("click", () => {
+      stopwatch.secondsElapsed = 0;
+      stopwatchL.textContent = "00:00:00";
+      stopwatch.toggle(stopwatchL);
+      document.dispatchEvent(new CustomEvent("task-exec-init"));
+    });
+
+    function quitExecution() {
+      if (stopwatch.isCounting) stopwatch.toggle(stopwatchL);
+      execDiag.close();
+      document.dispatchEvent(new CustomEvent("task-exec-finish"));
+    }
+
+    quitExec.addEventListener("click", async () => {
+      quitExecution();
+      const updatedTimeSpent = timeSpent + stopwatch.secondsElapsed;
+      try {
+        await updateTask({ title, desc, due, id, timeSpent: updatedTimeSpent });
+        timeSpent = updatedTimeSpent;
+        this.setAttribute("timeSpent", String(timeSpent));
+        timeSpentE.textContent = `Time Spent On Task: ${timeSpent}`;
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    finish.addEventListener("click", async () => {
+      quitExecution();
+      try {
+        await deleteTask(id);
+        this.remove();
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    execDiag.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      quitExec.click();
+    });
 
     // get elements
     const titleE = this.shadow.getElementById("title") as HTMLInputElement;
@@ -61,7 +117,7 @@ class TaskElement extends HTMLElement {
     const deleteButton = this.shadow.getElementById("delete-button") as HTMLButtonElement;
     deleteButton.addEventListener("click", () => {
       console.log("delete clicked");
-      // TODO: implement task deletion
+
       const deleteEvent = new CustomEvent("task-delete", {
         detail: {
           taskId: id,
@@ -79,7 +135,7 @@ class TaskElement extends HTMLElement {
       editDialog.showModal();
     });
 
-    const taskExec = document.getElementById("task-exec") as HTMLButtonElement;
+    const taskExec = this.shadow.getElementById("task-exec") as HTMLButtonElement;
     taskExec.addEventListener("click", () => {
       console.log("Execution Triggered!>:)");
       const execEvent = new CustomEvent("task-exec", {
