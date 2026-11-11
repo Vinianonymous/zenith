@@ -62,7 +62,7 @@ class TaskElement extends HTMLElement {
     const stopwatch = new Stopwatch();
 
     execButton.addEventListener("click", () => {
-      stopwatch.secondsElapsed = 0;
+      stopwatch.secondsElapsed = timeSpent;
       stopwatchL.textContent = "00:00:00";
       stopwatch.toggle(stopwatchL);
       document.dispatchEvent(new CustomEvent("task-exec-init"));
@@ -76,7 +76,7 @@ class TaskElement extends HTMLElement {
 
     quitExec.addEventListener("click", async () => {
       quitExecution();
-      const updatedTimeSpent = timeSpent + stopwatch.secondsElapsed;
+      const updatedTimeSpent = stopwatch.secondsElapsed;
       try {
         await updateTask({ title, desc, due, id, timeSpent: updatedTimeSpent });
         timeSpent = updatedTimeSpent;

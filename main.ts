@@ -6,6 +6,7 @@ const settings: Settings = loadSettings();
 import { Stopwatch, Timer } from "./stopwatch.js";
 // From 1000 lines in the other version to just this... I'm happy to rewrite zenith myself.stopwatch") as HTMLDivElement);
 const globalSBackend = new Stopwatch();
+globalSBackend.secondsElapsed = Number(localStorage.getItem("globalTime")) || 0;
 globalSBackend.cycleEnabled = settings.cycleEnabled;
 globalSBackend.cyclePeriod = settings.cyclePeriod;
 
@@ -66,6 +67,15 @@ document.addEventListener("task-exec-init", () => {
 document.addEventListener("task-exec-finish", () => {
   if (!globalSBackend.isCounting) globalSBackend.toggle(globalStopwatchLabel);
 });
+
+const saveBtn = document.getElementById('save-time-btn') as HTMLButtonElement;
+saveBtn.addEventListener('click',()=> {
+  localStorage.setItem('globalTime', String(globalSBackend.secondsElapsed))
+})
+const resetBTN = document.getElementById('reset-time-btn') as HTMLButtonElement;
+resetBTN.addEventListener('click', ()=>{
+  globalSBackend.secondsElapsed = 0;
+})
 
 // TASK HANDLING
 import { getTasks, newTask, Task, updateTask, deleteTask } from "./api.js";
