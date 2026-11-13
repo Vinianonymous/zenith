@@ -6,6 +6,7 @@ export class Settings {
   public intercyclePeriod: number = 5;
   public intercycleMessages: string[] = ["Pray", "Stretch", "Toggle Standing/Sitting work"];
   public alarmSound: string = "";
+  public alarmSoundEnabled: boolean = true;
 }
 
 const storageKey = "settings";
@@ -39,6 +40,8 @@ export function loadSettings(): Settings {
     ) {
       settings.intercycleMessages = parsed.intercycleMessages;
     }
+    if (typeof parsed.alarmSoundEnabled === "boolean")
+      settings.alarmSoundEnabled = parsed.alarmSoundEnabled;
     return settings;
   } catch {
     return new Settings();

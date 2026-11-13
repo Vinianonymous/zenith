@@ -51,6 +51,10 @@ globalSBackend.toggle(globalStopwatchLabel);
 let cycles: number = 0;
 
 document.addEventListener("cycle", () => {
+  if (settings.alarmSoundEnabled) {
+    const audio = new Audio(settings.alarmSound);
+    audio.play();
+  }
   globalSBackend.toggle(globalStopwatchLabel);
   const messages = settings.intercycleMessages.length
     ? settings.intercycleMessages
@@ -68,14 +72,14 @@ document.addEventListener("task-exec-finish", () => {
   if (!globalSBackend.isCounting) globalSBackend.toggle(globalStopwatchLabel);
 });
 
-const saveBtn = document.getElementById('save-time-btn') as HTMLButtonElement;
-saveBtn.addEventListener('click',()=> {
-  localStorage.setItem('globalTime', String(globalSBackend.secondsElapsed))
-})
-const resetBTN = document.getElementById('reset-time-btn') as HTMLButtonElement;
-resetBTN.addEventListener('click', ()=>{
+const saveBtn = document.getElementById("save-time-btn") as HTMLButtonElement;
+saveBtn.addEventListener("click", () => {
+  localStorage.setItem("globalTime", String(globalSBackend.secondsElapsed));
+});
+const resetBTN = document.getElementById("reset-time-btn") as HTMLButtonElement;
+resetBTN.addEventListener("click", () => {
   globalSBackend.secondsElapsed = 0;
-})
+});
 
 // TASK HANDLING
 import { getTasks, newTask, Task, updateTask, deleteTask } from "./api.js";

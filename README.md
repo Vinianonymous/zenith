@@ -13,4 +13,3 @@ Upcoming:
     - Pillars of Life: Radar Chart with daily log format, for the sake of logging your actions across your own metrics.
     - AI integration: Highly optional, but if integrated, will integrate AI insights into some patterns you display accross usage
     - Desktop time tracker: An standalone app that tracks your usage across browser and window apps.
-

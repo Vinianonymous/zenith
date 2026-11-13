@@ -4,6 +4,7 @@ const form = document.getElementById("settings") as HTMLFormElement;
 const cycleEnabledInput = document.getElementById("cycle-enabled") as HTMLInputElement;
 const cyclePeriodInput = document.getElementById("cycle-period") as HTMLInputElement;
 const intercyclePeriodInput = document.getElementById("intercycle-period") as HTMLInputElement;
+const alarmEnabled = document.getElementById("alarm-enabled") as HTMLInputElement;
 const alarmSoundInput = document.getElementById("alarm-sound") as HTMLInputElement;
 const intercycleMessagesInput = document.getElementById(
   "intercycle-messages",
@@ -15,6 +16,7 @@ function showSettings(settings: Settings): void {
   cyclePeriodInput.value = String(settings.cyclePeriod);
   intercyclePeriodInput.value = String(settings.intercyclePeriod);
   alarmSoundInput.value = settings.alarmSound;
+  alarmEnabled.checked = settings.alarmSoundEnabled;
 
   intercycleMessagesInput.value = settings.intercycleMessages.join("\n");
 }
@@ -50,6 +52,7 @@ form.addEventListener("submit", (event) => {
   settings.intercycleMessages = intercycleMessagesInput.value
     .split("\n")
     .filter((m) => m.trim() !== "");
+  settings.alarmSoundEnabled = alarmEnabled.checked;
 
   // Persist all four fields and reflect the stored values in the form.
   localStorage.setItem("settings", JSON.stringify(settings));
