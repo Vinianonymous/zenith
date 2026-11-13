@@ -1,6 +1,10 @@
 # zenith
 An tailored Task Manager, meant to aid you in surpassing your self.
 
+## Building the frontend
+
+Run `tsc -p tsconfig.json` from the project root after editing a `.ts` file. The browser loads JavaScript from `frontend/`, not the TypeScript source; the compiler does not rebuild on its own. During development, run `tsc -w -p tsconfig.json` in a separate terminal to rebuild on changes, then refresh the page.
+
 ## Features
 Task Management: Editable tasks which can be executed and timed accordingly
 

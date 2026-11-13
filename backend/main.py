@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +27,8 @@ def createTaskTable():
 createTaskTable()
 
 app = FastAPI()
+frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -98,3 +100,4 @@ def hey():
     print(
         "I am working okay! Don't care about the frontend tho so might have to watch out for that!"
     )
+app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
