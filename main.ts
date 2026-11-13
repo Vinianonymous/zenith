@@ -11,6 +11,7 @@ globalSBackend.cycleEnabled = settings.cycleEnabled;
 globalSBackend.cyclePeriod = settings.cyclePeriod;
 
 const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElement;
+globalSBackend.render(globalStopwatchLabel);
 const cycleDialog = document.getElementById("cycle-dialog") as HTMLDialogElement;
 const enterIC = document.getElementById("ic-btn") as HTMLButtonElement;
 let countingIC: boolean = false;
@@ -79,6 +80,8 @@ saveBtn.addEventListener("click", () => {
 const resetBTN = document.getElementById("reset-time-btn") as HTMLButtonElement;
 resetBTN.addEventListener("click", () => {
   globalSBackend.secondsElapsed = 0;
+  globalSBackend.render(globalStopwatchLabel);
+  localStorage.setItem("globalTime", "0");
 });
 
 // TASK HANDLING

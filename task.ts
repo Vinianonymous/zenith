@@ -63,7 +63,7 @@ class TaskElement extends HTMLElement {
 
     execButton.addEventListener("click", () => {
       stopwatch.secondsElapsed = timeSpent;
-      stopwatchL.textContent = "00:00:00";
+      stopwatch.render(stopwatchL);
       stopwatch.toggle(stopwatchL);
       document.dispatchEvent(new CustomEvent("task-exec-init"));
     });

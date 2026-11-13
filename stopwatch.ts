@@ -9,19 +9,23 @@ export class Stopwatch {
     composed: true,
     bubbles: true,
   }); // This basically exposes the function
+  public render(label: HTMLDivElement) {
+    const hour = String(Math.floor(this.secondsElapsed / 3600)).padStart(2, "0");
+    const minute = String(Math.floor((this.secondsElapsed % 3600) / 60)).padStart(2, "0");
+    const second = String(this.secondsElapsed % 60).padStart(2, "0");
+    label.textContent = `${hour}:${minute}:${second}`;
+  }
+
   public toggle(label: HTMLDivElement) {
     if (!this.isCounting) {
       this.isCounting = true;
       this.id = setInterval(() => {
         this.secondsElapsed++;
-        const hour = String(Math.floor(this.secondsElapsed / 3600)).padStart(2, "0");
-        const minute = String(Math.floor((this.secondsElapsed % 3600) / 60)).padStart(2, "0");
-        const second = String(this.secondsElapsed % 60).padStart(2, "0");
-        label.textContent = `${hour}:${minute}:${second}`;
+        this.render(label);
         if (this.secondsElapsed % (this.cyclePeriod * 60) == 0 && this.cycleEnabled) {
           document.dispatchEvent(this.cycleEvent);
         }
-      }, 10);
+      }, 1000);
     } else {
       this.isCounting = false;
       clearInterval(this.id);

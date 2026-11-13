@@ -8,6 +8,7 @@ globalSBackend.secondsElapsed = Number(localStorage.getItem("globalTime")) || 0;
 globalSBackend.cycleEnabled = settings.cycleEnabled;
 globalSBackend.cyclePeriod = settings.cyclePeriod;
 const globalStopwatchLabel = document.getElementById("stopwatch");
+globalSBackend.render(globalStopwatchLabel);
 const cycleDialog = document.getElementById("cycle-dialog");
 const enterIC = document.getElementById("ic-btn");
 let countingIC = false;
@@ -47,6 +48,10 @@ ack.addEventListener("click", () => {
 globalSBackend.toggle(globalStopwatchLabel);
 let cycles = 0;
 document.addEventListener("cycle", () => {
+    if (settings.alarmSoundEnabled) {
+        const audio = new Audio(settings.alarmSound);
+        audio.play();
+    }
     globalSBackend.toggle(globalStopwatchLabel);
     const messages = settings.intercycleMessages.length
         ? settings.intercycleMessages
@@ -63,13 +68,15 @@ document.addEventListener("task-exec-finish", () => {
     if (!globalSBackend.isCounting)
         globalSBackend.toggle(globalStopwatchLabel);
 });
-const saveBtn = document.getElementById('save-time-btn');
-saveBtn.addEventListener('click', () => {
-    localStorage.setItem('globalTime', String(globalSBackend.secondsElapsed));
+const saveBtn = document.getElementById("save-time-btn");
+saveBtn.addEventListener("click", () => {
+    localStorage.setItem("globalTime", String(globalSBackend.secondsElapsed));
 });
-const resetBTN = document.getElementById('reset-time-btn');
-resetBTN.addEventListener('click', () => {
+const resetBTN = document.getElementById("reset-time-btn");
+resetBTN.addEventListener("click", () => {
     globalSBackend.secondsElapsed = 0;
+    globalSBackend.render(globalStopwatchLabel);
+    localStorage.setItem("globalTime", "0");
 });
 // TASK HANDLING
 import { getTasks, newTask, updateTask, deleteTask } from "./api.js";
