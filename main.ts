@@ -9,9 +9,12 @@ const globalSBackend = new Stopwatch();
 globalSBackend.secondsElapsed = Number(localStorage.getItem("globalTime")) || 0;
 globalSBackend.cycleEnabled = settings.cycleEnabled;
 globalSBackend.cyclePeriod = settings.cyclePeriod;
-
+const start = document.getElementById("start-gS") as HTMLButtonElement;
 const globalStopwatchLabel = document.getElementById("stopwatch") as HTMLDivElement;
 globalSBackend.render(globalStopwatchLabel);
+start.addEventListener("click", () => {
+  globalSBackend.toggle(globalStopwatchLabel);
+});
 const cycleDialog = document.getElementById("cycle-dialog") as HTMLDialogElement;
 const enterIC = document.getElementById("ic-btn") as HTMLButtonElement;
 let countingIC: boolean = false;
@@ -48,12 +51,14 @@ ack.addEventListener("click", () => {
   ack.textContent = "Acknowledge";
   enterIC.textContent = "Enter Intercycle";
 });
-globalSBackend.toggle(globalStopwatchLabel);
 let cycles: number = 0;
 
 document.addEventListener("cycle", () => {
+  console.log("Cycle Occurred");
   if (settings.alarmSoundEnabled) {
+    console.log(settings.alarmSoundEnabled);
     const audio = new Audio(settings.alarmSound);
+    audio.load();
     audio.play();
   }
   globalSBackend.toggle(globalStopwatchLabel);
