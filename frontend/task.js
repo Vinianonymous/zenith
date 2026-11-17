@@ -1,4 +1,4 @@
-import { deleteTask, updateTask } from "./api.js";
+import { updateTask } from "./api.js";
 import { Stopwatch } from "./stopwatch.js";
 class TaskElement extends HTMLElement {
     shadow;
@@ -35,64 +35,46 @@ class TaskElement extends HTMLElement {
             <button id="cancel-changes-btn" type="button">Cancel</button>
           </form>
       </dialog>
-
-      <dialog id="exec-diag">
-        <div id="exec-stopwatch">00:00:00</div>
-        <button id="exec-cancel">Cancel</button>
-        <button id="exec-finish">Finish execution</button>
-      </dialog>      
+   
       <div id="task-card">
         <div>${title}</div>
+        <div id="exec-stopwatch" hidden=true>00:00:00</div>
         <button id="task-exec">Execute Task</button>
         <button id="task-edit-button">More Info</button>
         <button id="delete-button">Delete</button>
       </div>
     `;
         // Task execution
-        const execDiag = this.shadow.getElementById("exec-diag");
         const execButton = this.shadow.getElementById("task-exec");
-        const finish = this.shadow.getElementById("exec-finish");
-        const quitExec = this.shadow.getElementById("exec-cancel");
         const stopwatchL = this.shadow.getElementById("exec-stopwatch");
         const stopwatch = new Stopwatch();
+        stopwatch.secondsElapsed = timeSpent;
+        stopwatch.render(stopwatchL);
         execButton.addEventListener("click", () => {
-            stopwatch.secondsElapsed = timeSpent;
-            stopwatch.render(stopwatchL);
-            stopwatch.toggle(stopwatchL);
-            document.dispatchEvent(new CustomEvent("task-exec-init"));
-        });
-        function quitExecution() {
-            if (stopwatch.isCounting)
+            if (stopwatch.isCounting) {
                 stopwatch.toggle(stopwatchL);
-            execDiag.close();
-            document.dispatchEvent(new CustomEvent("task-exec-finish"));
-        }
-        quitExec.addEventListener("click", async () => {
-            quitExecution();
-            const updatedTimeSpent = stopwatch.secondsElapsed;
-            try {
-                await updateTask({ title, desc, due, id, timeSpent: updatedTimeSpent });
-                timeSpent = updatedTimeSpent;
-                this.setAttribute("timeSpent", String(timeSpent));
-                timeSpentE.textContent = `Time Spent On Task: ${timeSpent}`;
+                deleteButton.textContent = "Delete";
+                stopwatch.isCounting = false;
+                execButton.textContent = "Execute Task";
+                stopwatchL.hidden = true;
+                // TODO: Implement a way to save the time
+                const saveTime = {
+                    title: title,
+                    desc: desc,
+                    timeSpent: timeSpent,
+                    due: due,
+                    id: id,
+                };
+                updateTask(saveTime);
             }
-            catch (error) {
-                console.error(error);
+            else {
+                execButton.textContent = "Stop Execution";
+                stopwatch.toggle(stopwatchL);
+                timeSpent = stopwatch.secondsElapsed;
+                stopwatchL.hidden = false;
+                deleteButton.textContent = "Finish";
+                document.dispatchEvent(new CustomEvent("task-exec-init"));
             }
-        });
-        finish.addEventListener("click", async () => {
-            quitExecution();
-            try {
-                await deleteTask(id);
-                this.remove();
-            }
-            catch (error) {
-                console.error(error);
-            }
-        });
-        execDiag.addEventListener("cancel", (event) => {
-            event.preventDefault();
-            quitExec.click();
         });
         // get elements
         const titleE = this.shadow.getElementById("title");

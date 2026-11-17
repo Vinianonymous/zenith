@@ -39,14 +39,10 @@ class TaskElement extends HTMLElement {
             <button id="cancel-changes-btn" type="button">Cancel</button>
           </form>
       </dialog>
-
-      <dialog id="exec-diag">
-        <div id="exec-stopwatch">00:00:00</div>
-        <button id="exec-cancel">Cancel</button>
-        <button id="exec-finish">Finish execution</button>
-      </dialog>      
+   
       <div id="task-card">
         <div>${title}</div>
+        <div id="exec-stopwatch" hidden=true>00:00:00</div>
         <button id="task-exec">Execute Task</button>
         <button id="task-edit-button">More Info</button>
         <button id="delete-button">Delete</button>
@@ -54,52 +50,37 @@ class TaskElement extends HTMLElement {
     `;
 
     // Task execution
-    const execDiag = this.shadow.getElementById("exec-diag") as HTMLDialogElement;
     const execButton = this.shadow.getElementById("task-exec") as HTMLButtonElement;
-    const finish = this.shadow.getElementById("exec-finish") as HTMLButtonElement;
-    const quitExec = this.shadow.getElementById("exec-cancel") as HTMLButtonElement;
     const stopwatchL = this.shadow.getElementById("exec-stopwatch") as HTMLDivElement;
     const stopwatch = new Stopwatch();
+    stopwatch.secondsElapsed = timeSpent;
+    stopwatch.render(stopwatchL);
 
     execButton.addEventListener("click", () => {
-      stopwatch.secondsElapsed = timeSpent;
-      stopwatch.render(stopwatchL);
-      stopwatch.toggle(stopwatchL);
-      document.dispatchEvent(new CustomEvent("task-exec-init"));
-    });
+      if (stopwatch.isCounting) {
+        stopwatch.toggle(stopwatchL);
+        deleteButton.textContent = "Delete";
+        stopwatch.isCounting = false;
+        execButton.textContent = "Execute Task";
+        stopwatchL.hidden = true;
+        // TODO: Implement a way to save the time
+        const saveTime: Task = {
+          title: title,
+          desc: desc,
+          timeSpent: timeSpent,
+          due: due,
+          id: id,
+        };
+        updateTask(saveTime);
+      } else {
+        execButton.textContent = "Stop Execution";
+        stopwatch.toggle(stopwatchL);
+        timeSpent = stopwatch.secondsElapsed;
+        stopwatchL.hidden = false;
 
-    function quitExecution() {
-      if (stopwatch.isCounting) stopwatch.toggle(stopwatchL);
-      execDiag.close();
-      document.dispatchEvent(new CustomEvent("task-exec-finish"));
-    }
-
-    quitExec.addEventListener("click", async () => {
-      quitExecution();
-      const updatedTimeSpent = stopwatch.secondsElapsed;
-      try {
-        await updateTask({ title, desc, due, id, timeSpent: updatedTimeSpent });
-        timeSpent = updatedTimeSpent;
-        this.setAttribute("timeSpent", String(timeSpent));
-        timeSpentE.textContent = `Time Spent On Task: ${timeSpent}`;
-      } catch (error) {
-        console.error(error);
+        deleteButton.textContent = "Finish";
+        document.dispatchEvent(new CustomEvent("task-exec-init"));
       }
-    });
-
-    finish.addEventListener("click", async () => {
-      quitExecution();
-      try {
-        await deleteTask(id);
-        this.remove();
-      } catch (error) {
-        console.error(error);
-      }
-    });
-
-    execDiag.addEventListener("cancel", (event) => {
-      event.preventDefault();
-      quitExec.click();
     });
 
     // get elements
