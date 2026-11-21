@@ -6,6 +6,7 @@ export type Task = {
   due: string;
   id: string;
   timeSpent: number;
+  taskOrder: number;
 };
 
 export async function getTasks(): Promise<Task[]> {
@@ -25,14 +26,12 @@ export async function newTask(task: Task) {
 }
 
 export async function deleteTask(taskID: string) {
-  const tasks = await getTasks();
-  const task: Task = tasks.find((task) => task.id === taskID) as Task;
   const response = await fetch(apiURL + "tasks", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(task),
+    body: JSON.stringify({ taskID }),
   });
 
   return await response.json();

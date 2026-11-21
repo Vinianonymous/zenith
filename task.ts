@@ -16,6 +16,7 @@ class TaskElement extends HTMLElement {
     const due = (this.getAttribute("due") as string) || "2026-10-01";
     let timeSpent = Number(this.getAttribute("timeSpent")) || 0;
     const id = (this.getAttribute("id") as string) || "DANGER: NO ID";
+    let order = Number(this.getAttribute("taskOrder")) || 1;
 
     // Render Data From attributes;
     const dueDate = new Date(due).toISOString().split("T")[0];
@@ -41,6 +42,7 @@ class TaskElement extends HTMLElement {
       </dialog>
    
       <div id="task-card">
+        <div id="order">${order}</div>
         <div>${title}</div>
         <div id="exec-stopwatch" hidden=true>00:00:00</div>
         <button id="task-exec">Execute Task</button>
@@ -70,6 +72,7 @@ class TaskElement extends HTMLElement {
           timeSpent: timeSpent,
           due: due,
           id: id,
+          taskOrder: order,
         };
         updateTask(saveTime);
       } else {
@@ -144,6 +147,7 @@ class TaskElement extends HTMLElement {
         desc: formD.get("desc") as string,
         due: formD.get("due") as string,
         timeSpent: timeSpent,
+        taskOrder: order,
       };
       const editEvent = new CustomEvent("task-edit", {
         detail: {

@@ -1,3 +1,6 @@
+// TODO: Make order update when task is deleted
+// TODO: Add drag-drop functionality for task reordering
+
 // SETTINGS HANDLING
 import { Settings, loadSettings } from "./settings.js";
 
@@ -107,6 +110,7 @@ function createTaskElement(task: Task) {
   element.setAttribute("desc", task.desc);
   element.setAttribute("due", task.due);
   element.setAttribute("timeSpent", String(task.timeSpent));
+  element.setAttribute("taskOrder", String(task.taskOrder));
   element.setAttribute("id", task.id);
   return element;
 }
@@ -150,6 +154,7 @@ formE.addEventListener("submit", async (event) => {
     desc: desc,
     due: due,
     id: crypto.randomUUID(),
+    taskOrder: tasks.length + 1,
     timeSpent: 0,
   };
   try {

@@ -19,9 +19,9 @@ def createTaskTable():
                 title TEXT NOT NULL,
                 desc TEXT NOT NULL,
                 due TEXT NOT NULL,
-                timeSpent INTEGER NOT NULL
-            )
-        """)
+                timeSpent INTEGER NOT NULL,
+                taskOrder INTEGER NOT NULL
+            )""")
 
 
 createTaskTable()
@@ -44,6 +44,7 @@ class Task(BaseModel):
     due: str
     id: str
     timeSpent: int
+    taskOrder: int
 
 
 @app.get("/tasks")
@@ -51,7 +52,9 @@ def getTasks():
     try:
         with conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, title, desc, due, timeSpent FROM taskList")
+            cursor.execute(
+                "SELECT id, title, desc, due, timeSpent,taskOrder FROM taskList"
+            )
             rows = cursor.fetchall()
             taskList = [dict(row) for row in rows]
             return taskList
@@ -66,18 +69,29 @@ def newTask(task: Task):
     with conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT OR REPLACE INTO taskList (id, title, desc, due, timeSpent) VALUES (?, ?, ?, ?, ?)",
-            (raw["id"], raw["title"], raw["desc"], raw["due"], raw["timeSpent"]),
+            "INSERT OR REPLACE INTO taskList (id, title, desc, due, timeSpent, taskOrder) VALUES (?, ?, ?, ?, ?,?)",
+            (
+                raw["id"],
+                raw["title"],
+                raw["desc"],
+                raw["due"],
+                raw["timeSpent"],
+                raw["taskOrder"],
+            ),
         )
     return task
 
 
+class deleteRequest(BaseModel):
+    taskID: str
+
+
 @app.delete("/tasks")
-def deleteTask(task: Task):
-    raw = task.model_dump()
+def deleteTask(delReq: deleteRequest):
+    raw = delReq.model_dump()
     with conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM taskList WHERE id = ?", (raw["id"],))
+        cursor.execute("DELETE FROM taskList WHERE id = ?", (raw["taskID"],))
     return {"status": "ok"}
 
 
@@ -88,9 +102,16 @@ def updateTask(NewTask: Task):
         cursor = conn.cursor()
         cursor.execute(
             """UPDATE taskList
-               SET title = ?, desc = ?, due = ?, timeSpent = ?
+               SET title = ?, desc = ?, due = ?, timeSpent = ?, taskOrder = ?
                WHERE id = ?""",
-            (raw["title"], raw["desc"], raw["due"], raw["timeSpent"], raw["id"]),
+            (
+                raw["title"],
+                raw["desc"],
+                raw["due"],
+                raw["timeSpent"],
+                raw["taskOrder"],
+                raw["id"],
+            ),
         )
     return NewTask
 
@@ -100,4 +121,6 @@ def hey():
     print(
         "I am working okay! Don't care about the frontend tho so might have to watch out for that!"
     )
+
+
 app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
