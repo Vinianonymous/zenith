@@ -1,3 +1,5 @@
+// TODO: Make order update when task is deleted
+// TODO: Add drag-drop functionality for task reordering
 // SETTINGS HANDLING
 import { loadSettings } from "./settings.js";
 const settings = loadSettings();

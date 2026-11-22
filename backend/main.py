@@ -53,7 +53,7 @@ def getTasks():
         with conn:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT id, title, desc, due, timeSpent,taskOrder FROM taskList"
+                "SELECT id, title, desc, due, timeSpent,taskOrder FROM taskList ORDER BY taskOrder ASC"
             )
             rows = cursor.fetchall()
             taskList = [dict(row) for row in rows]
@@ -114,6 +114,20 @@ def updateTask(NewTask: Task):
             ),
         )
     return NewTask
+
+
+class reorderReq(BaseModel):
+    taskIds: list
+
+
+@app.get("tasks/reorder")
+async def reorder(req: reorderReq):
+    return 1
+    # TODO: Finish this
+    raw = req.model_dump()
+    tasks = await getTasks()
+    for task, id in tasks, raw:
+        pass
 
 
 @app.get("/health")

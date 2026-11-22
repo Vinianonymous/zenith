@@ -42,6 +42,7 @@ class TaskElement extends HTMLElement {
       </dialog>
    
       <div id="task-card">
+       <span id="drag-handle" draggable="true" aria-label="Reorder task">⠿</span>
         <div id="order">${order}</div>
         <div>${title}</div>
         <div id="exec-stopwatch" hidden=true>00:00:00</div>
